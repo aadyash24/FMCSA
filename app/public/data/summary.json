@@ -1,0 +1,10 @@
+{
+  "totalCrashes": 45650,
+  "totalFatalities": 1595,
+  "totalInjured": 31463,
+  "yearRange": [
+    "2015",
+    "2025"
+  ],
+  "generatedFrom": "CMV_crash_database.csv (FMCSA project, TN TITAN extract)"
+}

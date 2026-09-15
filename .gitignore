@@ -1,0 +1,14 @@
+# Large raw source files - not committed, see data/README.md for how to regenerate
+raw_crash_data.csv
+data/raw_geo/
+
+# Node / Vite
+app/node_modules
+app/dist
+app/dist-ssr
+*.local
+
+.DS_Store
+
+# Generated but not used by the POC yet - regenerate with data/prep_crash_data.py
+app/public/data/points.json

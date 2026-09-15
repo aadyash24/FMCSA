@@ -1,0 +1,20 @@
+.coming-soon {
+  background: var(--panel);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.coming-soon h3 {
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.coming-soon p {
+  margin: 0 auto;
+  max-width: 480px;
+  font-size: 13px;
+  line-height: 1.5;
+}

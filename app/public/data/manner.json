@@ -1,0 +1,42 @@
+[
+  {
+    "manner": "Front to Rear",
+    "count": 11692
+  },
+  {
+    "manner": "Not Collision w/ Motor Vehicle in Transport",
+    "count": 11418
+  },
+  {
+    "manner": "Angle",
+    "count": 11305
+  },
+  {
+    "manner": "Sideswipe - Same Direction",
+    "count": 7575
+  },
+  {
+    "manner": "Sideswipe - Opposite Direction",
+    "count": 1300
+  },
+  {
+    "manner": "Head-On",
+    "count": 1210
+  },
+  {
+    "manner": "Other",
+    "count": 792
+  },
+  {
+    "manner": "Rear to Side",
+    "count": 164
+  },
+  {
+    "manner": "Unknown",
+    "count": 148
+  },
+  {
+    "manner": "Rear to Rear",
+    "count": 46
+  }
+]

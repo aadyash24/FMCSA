@@ -1,0 +1,199 @@
+Highway Extraction in R
+
+#######################################################################################
+This is the code Chris developed in R to extract the interstate and state highways
+from the TDOT Road_Geometrics shapefile. It expects the full shapefile
+(Road_Geometrics.shp/.dbf/.shx/.prj/.cpg) locally -- only the .shp.xml/.cpg/.prj
+metadata made it into the FMCSA project so far. Once the real .shp/.dbf/.shx are
+available, run this (or export sf::st_write(..., "tn_highways.geojson") instead of
+the Leaflet widget) to replace the placeholder layer in app/public/data/tn_highways.geojson.
+#######################################################################################
+
+
+library(sf)
+library(dplyr)
+library(leaflet)
+library(htmlwidgets)
+
+# ------------------------------------------------------------
+# 1. File location
+# ------------------------------------------------------------
+
+shapefile_folder <- paste0(
+  "C:/Users/chris/OneDrive - University of Tennessee/",
+  "Academia Folder/Data/Roadway Geometrics/",
+  "Road_Geometrics_- Shapefiles"
+)
+
+shapefile_path <- file.path(
+  shapefile_folder,
+  "Road_Geometrics.shp"
+)
+
+# ------------------------------------------------------------
+# 2. Read the roadway shapefile
+# ------------------------------------------------------------
+
+roads <- st_read(
+  shapefile_path,
+  quiet = TRUE
+)
+
+# Remove the M coordinate from the XYM roadway geometries
+roads <- st_zm(
+  roads,
+  drop = TRUE,
+  what = "ZM"
+)
+
+# Remove missing and empty geometries
+roads <- roads[!is.na(st_geometry(roads)), ]
+roads <- roads[!st_is_empty(roads), ]
+
+# ------------------------------------------------------------
+# 3. Retain Tennessee highways
+# ------------------------------------------------------------
+
+tn_highways <- roads %>%
+  filter(grepl("^(I|SR)", NBR_RTE)) %>%
+  mutate(
+    Route_Type = case_when(
+      grepl("^I", NBR_RTE)  ~ "Interstate",
+      grepl("^SR", NBR_RTE) ~ "State Route",
+      TRUE                   ~ "Other"
+    ),
+
+    Route_Number = as.integer(
+      gsub("[^0-9]", "", NBR_RTE)
+    ),
+
+    Route_Label = case_when(
+      Route_Type == "Interstate" ~ paste0("I-", Route_Number),
+      Route_Type == "State Route" ~ paste0("SR-", Route_Number),
+      TRUE ~ NBR_RTE
+    ),
+
+    Speed_Label = case_when(
+      SPD_LMT > 0 ~ paste0(SPD_LMT, " mph"),
+      TRUE ~ "Not reported"
+    ),
+
+    Popup = paste0(
+      "<b>Route:</b> ", Route_Label,
+      "<br><b>County:</b> ", NBR_TENN_C,
+      "<br><b>Speed limit:</b> ", Speed_Label,
+      "<br><b>Number of lanes:</b> ", NBR_LANES,
+      "<br><b>Through lanes:</b> ", THRU_LANES,
+      "<br><b>Terrain:</b> ", TY_TERRAIN,
+      "<br><b>Access control:</b> ", ACCESS_CTR,
+      "<br><b>Segment ID:</b> ", ID_NUMBER
+    )
+  )
+
+# ------------------------------------------------------------
+# 4. Optional geometry simplification
+# ------------------------------------------------------------
+
+# The shapefile is already projected in EPSG 2274, with units in feet.
+# Simplifying by 20 feet reduces map size while retaining roadway shape.
+tn_highways <- st_simplify(
+  tn_highways,
+  dTolerance = 20,
+  preserveTopology = TRUE
+)
+
+# ------------------------------------------------------------
+# 5. Transform to longitude and latitude for Leaflet
+# ------------------------------------------------------------
+
+tn_highways_web <- st_transform(
+  tn_highways,
+  crs = 4326
+)
+
+# Separate layers
+state_routes <- tn_highways_web %>%
+  filter(Route_Type == "State Route")
+
+interstates <- tn_highways_web %>%
+  filter(Route_Type == "Interstate")
+
+# Tennessee map extent
+map_bounds <- st_bbox(tn_highways_web)
+
+# ------------------------------------------------------------
+# 6. Create the interactive map
+# ------------------------------------------------------------
+
+tn_map <- leaflet(
+  options = leafletOptions(
+    preferCanvas = TRUE
+  )
+) %>%
+
+  addTiles(
+    group = "OpenStreetMap"
+  ) %>%
+
+  addPolylines(
+    data = state_routes,
+    color = "#6B7280",
+    weight = 1.2,
+    opacity = 0.70,
+    smoothFactor = 1,
+    group = "State Routes",
+    label = ~Route_Label,
+    popup = ~Popup,
+    highlightOptions = highlightOptions(
+      color = "#F59E0B",
+      weight = 4,
+      opacity = 1,
+      bringToFront = TRUE
+    )
+  ) %>%
+
+  addPolylines(
+    data = interstates,
+    color = "#C2410C",
+    weight = 3,
+    opacity = 0.95,
+    smoothFactor = 1,
+    group = "Interstates",
+    label = ~Route_Label,
+    popup = ~Popup,
+    highlightOptions = highlightOptions(
+      color = "#FBBF24",
+      weight = 6,
+      opacity = 1,
+      bringToFront = TRUE
+    )
+  ) %>%
+
+  addLayersControl(
+    baseGroups = "OpenStreetMap",
+    overlayGroups = c(
+      "Interstates",
+      "State Routes"
+    ),
+    options = layersControlOptions(
+      collapsed = FALSE
+    )
+  ) %>%
+
+  addScaleBar(
+    position = "bottomleft",
+    options = scaleBarOptions(
+      imperial = TRUE,
+      metric = TRUE
+    )
+  ) %>%
+
+  fitBounds(
+    lng1 = as.numeric(map_bounds["xmin"]),
+    lat1 = as.numeric(map_bounds["ymin"]),
+    lng2 = as.numeric(map_bounds["xmax"]),
+    lat2 = as.numeric(map_bounds["ymax"])
+  )
+
+# Display the map in the RStudio Viewer
+tn_map

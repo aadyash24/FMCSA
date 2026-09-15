@@ -1,0 +1,68 @@
+[
+  {
+    "year": "2015",
+    "crashes": 3427,
+    "fatalities": 125,
+    "injured": 2333
+  },
+  {
+    "year": "2016",
+    "crashes": 3500,
+    "fatalities": 109,
+    "injured": 2450
+  },
+  {
+    "year": "2017",
+    "crashes": 3306,
+    "fatalities": 129,
+    "injured": 2325
+  },
+  {
+    "year": "2018",
+    "crashes": 3486,
+    "fatalities": 115,
+    "injured": 2202
+  },
+  {
+    "year": "2019",
+    "crashes": 4329,
+    "fatalities": 146,
+    "injured": 2760
+  },
+  {
+    "year": "2020",
+    "crashes": 4294,
+    "fatalities": 183,
+    "injured": 2568
+  },
+  {
+    "year": "2021",
+    "crashes": 5531,
+    "fatalities": 198,
+    "injured": 3762
+  },
+  {
+    "year": "2022",
+    "crashes": 6048,
+    "fatalities": 184,
+    "injured": 4459
+  },
+  {
+    "year": "2023",
+    "crashes": 5500,
+    "fatalities": 184,
+    "injured": 4095
+  },
+  {
+    "year": "2024",
+    "crashes": 5023,
+    "fatalities": 185,
+    "injured": 3659
+  },
+  {
+    "year": "2025",
+    "crashes": 1206,
+    "fatalities": 37,
+    "injured": 850
+  }
+]

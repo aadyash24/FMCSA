@@ -1,0 +1,34 @@
+[
+  {
+    "route": "Interstate",
+    "count": 20158
+  },
+  {
+    "route": "State Route",
+    "count": 8153
+  },
+  {
+    "route": "Municipal Route",
+    "count": 7462
+  },
+  {
+    "route": "US Route",
+    "count": 4848
+  },
+  {
+    "route": "County Route",
+    "count": 3327
+  },
+  {
+    "route": "Unknown",
+    "count": 862
+  },
+  {
+    "route": "Other",
+    "count": 768
+  },
+  {
+    "route": "Frontage Road",
+    "count": 72
+  }
+]

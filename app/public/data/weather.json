@@ -1,0 +1,50 @@
+[
+  {
+    "weather": "Unknown",
+    "count": 23703
+  },
+  {
+    "weather": "Clear",
+    "count": 15000
+  },
+  {
+    "weather": "Rain",
+    "count": 3285
+  },
+  {
+    "weather": "Cloudy",
+    "count": 3043
+  },
+  {
+    "weather": "Snow",
+    "count": 301
+  },
+  {
+    "weather": "Fog",
+    "count": 140
+  },
+  {
+    "weather": "Sleet/Hail",
+    "count": 112
+  },
+  {
+    "weather": "Severe Cross-Winds",
+    "count": 27
+  },
+  {
+    "weather": "Blowing Snow",
+    "count": 19
+  },
+  {
+    "weather": "Other",
+    "count": 16
+  },
+  {
+    "weather": "Smog/Smoke",
+    "count": 3
+  },
+  {
+    "weather": "Other (11)",
+    "count": 1
+  }
+]

@@ -1,0 +1,578 @@
+[
+  {
+    "county": "Davidson",
+    "crashes": 6279,
+    "fatalities": 133,
+    "injured": 4849
+  },
+  {
+    "county": "Shelby",
+    "crashes": 5453,
+    "fatalities": 215,
+    "injured": 5731
+  },
+  {
+    "county": "Hamilton",
+    "crashes": 2747,
+    "fatalities": 82,
+    "injured": 1979
+  },
+  {
+    "county": "Knox",
+    "crashes": 2649,
+    "fatalities": 74,
+    "injured": 1620
+  },
+  {
+    "county": "Rutherford",
+    "crashes": 2217,
+    "fatalities": 51,
+    "injured": 1557
+  },
+  {
+    "county": "Wilson",
+    "crashes": 1246,
+    "fatalities": 42,
+    "injured": 810
+  },
+  {
+    "county": "Williamson",
+    "crashes": 1115,
+    "fatalities": 40,
+    "injured": 664
+  },
+  {
+    "county": "Marshall",
+    "crashes": 1108,
+    "fatalities": 45,
+    "injured": 699
+  },
+  {
+    "county": "Montgomery",
+    "crashes": 1015,
+    "fatalities": 41,
+    "injured": 766
+  },
+  {
+    "county": "Robertson",
+    "crashes": 998,
+    "fatalities": 28,
+    "injured": 574
+  },
+  {
+    "county": "Bradley",
+    "crashes": 824,
+    "fatalities": 20,
+    "injured": 494
+  },
+  {
+    "county": "Sumner",
+    "crashes": 765,
+    "fatalities": 15,
+    "injured": 443
+  },
+  {
+    "county": "Maury",
+    "crashes": 742,
+    "fatalities": 23,
+    "injured": 367
+  },
+  {
+    "county": "Putnam",
+    "crashes": 717,
+    "fatalities": 26,
+    "injured": 360
+  },
+  {
+    "county": "Roane",
+    "crashes": 684,
+    "fatalities": 15,
+    "injured": 323
+  },
+  {
+    "county": "Cumberland",
+    "crashes": 677,
+    "fatalities": 29,
+    "injured": 362
+  },
+  {
+    "county": "Jefferson",
+    "crashes": 652,
+    "fatalities": 18,
+    "injured": 377
+  },
+  {
+    "county": "Greene",
+    "crashes": 605,
+    "fatalities": 21,
+    "injured": 387
+  },
+  {
+    "county": "Coffee",
+    "crashes": 588,
+    "fatalities": 24,
+    "injured": 355
+  },
+  {
+    "county": "McNairy",
+    "crashes": 572,
+    "fatalities": 18,
+    "injured": 341
+  },
+  {
+    "county": "Campbell",
+    "crashes": 570,
+    "fatalities": 14,
+    "injured": 250
+  },
+  {
+    "county": "Loudon",
+    "crashes": 543,
+    "fatalities": 18,
+    "injured": 266
+  },
+  {
+    "county": "Dickson",
+    "crashes": 531,
+    "fatalities": 21,
+    "injured": 293
+  },
+  {
+    "county": "Macon",
+    "crashes": 505,
+    "fatalities": 22,
+    "injured": 299
+  },
+  {
+    "county": "Sullivan",
+    "crashes": 503,
+    "fatalities": 18,
+    "injured": 415
+  },
+  {
+    "county": "Henderson",
+    "crashes": 495,
+    "fatalities": 24,
+    "injured": 300
+  },
+  {
+    "county": "Haywood",
+    "crashes": 466,
+    "fatalities": 25,
+    "injured": 242
+  },
+  {
+    "county": "Fayette",
+    "crashes": 410,
+    "fatalities": 16,
+    "injured": 269
+  },
+  {
+    "county": "Washington",
+    "crashes": 397,
+    "fatalities": 18,
+    "injured": 285
+  },
+  {
+    "county": "Humphreys",
+    "crashes": 365,
+    "fatalities": 6,
+    "injured": 221
+  },
+  {
+    "county": "Blount",
+    "crashes": 359,
+    "fatalities": 10,
+    "injured": 205
+  },
+  {
+    "county": "Smith",
+    "crashes": 357,
+    "fatalities": 20,
+    "injured": 162
+  },
+  {
+    "county": "Sevier",
+    "crashes": 351,
+    "fatalities": 7,
+    "injured": 258
+  },
+  {
+    "county": "Cocke",
+    "crashes": 343,
+    "fatalities": 12,
+    "injured": 184
+  },
+  {
+    "county": "Cheatham",
+    "crashes": 342,
+    "fatalities": 13,
+    "injured": 197
+  },
+  {
+    "county": "Anderson",
+    "crashes": 339,
+    "fatalities": 9,
+    "injured": 157
+  },
+  {
+    "county": "Hickman",
+    "crashes": 330,
+    "fatalities": 18,
+    "injured": 183
+  },
+  {
+    "county": "Giles",
+    "crashes": 297,
+    "fatalities": 6,
+    "injured": 177
+  },
+  {
+    "county": "Hamblen",
+    "crashes": 279,
+    "fatalities": 4,
+    "injured": 155
+  },
+  {
+    "county": "Benton",
+    "crashes": 266,
+    "fatalities": 8,
+    "injured": 152
+  },
+  {
+    "county": "Dyer",
+    "crashes": 255,
+    "fatalities": 8,
+    "injured": 163
+  },
+  {
+    "county": "Bedford",
+    "crashes": 231,
+    "fatalities": 14,
+    "injured": 139
+  },
+  {
+    "county": "Madison",
+    "crashes": 230,
+    "fatalities": 12,
+    "injured": 156
+  },
+  {
+    "county": "Monroe",
+    "crashes": 224,
+    "fatalities": 14,
+    "injured": 141
+  },
+  {
+    "county": "Tipton",
+    "crashes": 224,
+    "fatalities": 9,
+    "injured": 179
+  },
+  {
+    "county": "McMinn",
+    "crashes": 212,
+    "fatalities": 8,
+    "injured": 124
+  },
+  {
+    "county": "Obion",
+    "crashes": 208,
+    "fatalities": 9,
+    "injured": 129
+  },
+  {
+    "county": "Hardin",
+    "crashes": 205,
+    "fatalities": 12,
+    "injured": 121
+  },
+  {
+    "county": "Grundy",
+    "crashes": 195,
+    "fatalities": 3,
+    "injured": 97
+  },
+  {
+    "county": "Lincoln",
+    "crashes": 180,
+    "fatalities": 9,
+    "injured": 119
+  },
+  {
+    "county": "Carter",
+    "crashes": 166,
+    "fatalities": 8,
+    "injured": 74
+  },
+  {
+    "county": "Lawrence",
+    "crashes": 165,
+    "fatalities": 10,
+    "injured": 99
+  },
+  {
+    "county": "Gibson",
+    "crashes": 159,
+    "fatalities": 6,
+    "injured": 115
+  },
+  {
+    "county": "Henry",
+    "crashes": 154,
+    "fatalities": 15,
+    "injured": 100
+  },
+  {
+    "county": "Hawkins",
+    "crashes": 152,
+    "fatalities": 15,
+    "injured": 95
+  },
+  {
+    "county": "Rhea",
+    "crashes": 147,
+    "fatalities": 5,
+    "injured": 116
+  },
+  {
+    "county": "Carroll",
+    "crashes": 131,
+    "fatalities": 6,
+    "injured": 71
+  },
+  {
+    "county": "Decatur",
+    "crashes": 127,
+    "fatalities": 5,
+    "injured": 68
+  },
+  {
+    "county": "Franklin",
+    "crashes": 120,
+    "fatalities": 2,
+    "injured": 99
+  },
+  {
+    "county": "Claiborne",
+    "crashes": 119,
+    "fatalities": 5,
+    "injured": 76
+  },
+  {
+    "county": "Polk",
+    "crashes": 116,
+    "fatalities": 3,
+    "injured": 67
+  },
+  {
+    "county": "Warren",
+    "crashes": 116,
+    "fatalities": 15,
+    "injured": 97
+  },
+  {
+    "county": "Weakley",
+    "crashes": 114,
+    "fatalities": 6,
+    "injured": 73
+  },
+  {
+    "county": "DeKalb",
+    "crashes": 103,
+    "fatalities": 1,
+    "injured": 58
+  },
+  {
+    "county": "Chester",
+    "crashes": 102,
+    "fatalities": 6,
+    "injured": 60
+  },
+  {
+    "county": "Wayne",
+    "crashes": 102,
+    "fatalities": 4,
+    "injured": 53
+  },
+  {
+    "county": "Overton",
+    "crashes": 100,
+    "fatalities": 8,
+    "injured": 53
+  },
+  {
+    "county": "Hardeman",
+    "crashes": 100,
+    "fatalities": 5,
+    "injured": 67
+  },
+  {
+    "county": "Crockett",
+    "crashes": 97,
+    "fatalities": 7,
+    "injured": 58
+  },
+  {
+    "county": "Grainger",
+    "crashes": 96,
+    "fatalities": 3,
+    "injured": 72
+  },
+  {
+    "county": "Sequatchie",
+    "crashes": 91,
+    "fatalities": 13,
+    "injured": 52
+  },
+  {
+    "county": "White",
+    "crashes": 87,
+    "fatalities": 3,
+    "injured": 44
+  },
+  {
+    "county": "Unicoi",
+    "crashes": 82,
+    "fatalities": 4,
+    "injured": 44
+  },
+  {
+    "county": "Marion",
+    "crashes": 81,
+    "fatalities": 6,
+    "injured": 35
+  },
+  {
+    "county": "Lauderdale",
+    "crashes": 80,
+    "fatalities": 4,
+    "injured": 62
+  },
+  {
+    "county": "Johnson",
+    "crashes": 74,
+    "fatalities": 4,
+    "injured": 55
+  },
+  {
+    "county": "Fentress",
+    "crashes": 72,
+    "fatalities": 8,
+    "injured": 48
+  },
+  {
+    "county": "Union",
+    "crashes": 64,
+    "fatalities": 7,
+    "injured": 34
+  },
+  {
+    "county": "Stewart",
+    "crashes": 61,
+    "fatalities": 7,
+    "injured": 43
+  },
+  {
+    "county": "Scott",
+    "crashes": 61,
+    "fatalities": 7,
+    "injured": 36
+  },
+  {
+    "county": "Bledsoe",
+    "crashes": 59,
+    "fatalities": 6,
+    "injured": 43
+  },
+  {
+    "county": "Morgan",
+    "crashes": 55,
+    "fatalities": 3,
+    "injured": 25
+  },
+  {
+    "county": "Meigs",
+    "crashes": 52,
+    "fatalities": 11,
+    "injured": 49
+  },
+  {
+    "county": "Trousdale",
+    "crashes": 47,
+    "fatalities": 5,
+    "injured": 21
+  },
+  {
+    "county": "Clay",
+    "crashes": 45,
+    "fatalities": 4,
+    "injured": 23
+  },
+  {
+    "county": "Cannon",
+    "crashes": 45,
+    "fatalities": 4,
+    "injured": 28
+  },
+  {
+    "county": "Lewis",
+    "crashes": 39,
+    "fatalities": 0,
+    "injured": 22
+  },
+  {
+    "county": "Jackson",
+    "crashes": 38,
+    "fatalities": 2,
+    "injured": 13
+  },
+  {
+    "county": "Perry",
+    "crashes": 29,
+    "fatalities": 0,
+    "injured": 15
+  },
+  {
+    "county": "Pickett",
+    "crashes": 28,
+    "fatalities": 3,
+    "injured": 30
+  },
+  {
+    "county": "Van Buren",
+    "crashes": 27,
+    "fatalities": 1,
+    "injured": 17
+  },
+  {
+    "county": "Houston",
+    "crashes": 26,
+    "fatalities": 5,
+    "injured": 15
+  },
+  {
+    "county": "Moore",
+    "crashes": 24,
+    "fatalities": 3,
+    "injured": 22
+  },
+  {
+    "county": "Hancock",
+    "crashes": 18,
+    "fatalities": 2,
+    "injured": 8
+  },
+  {
+    "county": "Lake",
+    "crashes": 13,
+    "fatalities": 1,
+    "injured": 11
+  },
+  {
+    "county": "Unknown",
+    "crashes": 1,
+    "fatalities": 0,
+    "injured": 1
+  }
+]

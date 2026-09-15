@@ -1,0 +1,11 @@
+List of Tasks
+
+Open the GitHub Repository
+Build the skeleton for the dashboard
+As of now it should show a map of TN, with the interstate and state highways highlighted on it. (We will make the map interactive later, for now we will keep it simple
+The user should be able to choose one of three modes, that will change what the map displays
+MODE 1, Data Exploration. The user is able to visualize CMV related crash data for the past X number of years.
+Within MODE 1, the user can plot different characteristics of CMV crashes across those years. For examples (crash severities, types of crash, manner of collision, etc)
+Within MODE 1, we should have tables and graphics that display important information about crashes. We can discuss what these will be.
+(FOR LATER) MODE 2, Risk Assessment. The user is able to visualize different ways of assessing risk on the roadways given certain specifications (we will define those later)
+(FOR LATER) MODE 3, Predictive Modeling. The user is able to visualize results from a model we developed and see what is the probability of crashes occurring on a given road

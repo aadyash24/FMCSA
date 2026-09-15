@@ -1,0 +1,34 @@
+[
+  {
+    "condition": "Daylight",
+    "count": 32027
+  },
+  {
+    "condition": "Dark - Not Lighted",
+    "count": 6997
+  },
+  {
+    "condition": "Dark - Lighted",
+    "count": 4639
+  },
+  {
+    "condition": "Dawn",
+    "count": 1082
+  },
+  {
+    "condition": "Dusk",
+    "count": 627
+  },
+  {
+    "condition": "Dark - Unknown Lighting",
+    "count": 132
+  },
+  {
+    "condition": "Unknown",
+    "count": 109
+  },
+  {
+    "condition": "Other",
+    "count": 37
+  }
+]

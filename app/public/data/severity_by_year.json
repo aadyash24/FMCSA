@@ -1,0 +1,111 @@
+{
+  "series": [
+    {
+      "year": "2015",
+      "Fatal": 109,
+      "Injury - Incapacitating": 310,
+      "Injury - Non-Incapacitating": 643,
+      "Injury - Possible": 605,
+      "Property Damage": 1754,
+      "Property Damage (Under Threshold)": 6
+    },
+    {
+      "year": "2016",
+      "Fatal": 91,
+      "Injury - Incapacitating": 315,
+      "Injury - Non-Incapacitating": 654,
+      "Injury - Possible": 621,
+      "Property Damage": 1810,
+      "Property Damage (Under Threshold)": 9
+    },
+    {
+      "year": "2017",
+      "Fatal": 116,
+      "Injury - Incapacitating": 288,
+      "Injury - Non-Incapacitating": 637,
+      "Injury - Possible": 542,
+      "Property Damage": 1714,
+      "Property Damage (Under Threshold)": 9
+    },
+    {
+      "year": "2018",
+      "Fatal": 104,
+      "Injury - Incapacitating": 252,
+      "Injury - Non-Incapacitating": 730,
+      "Injury - Possible": 483,
+      "Property Damage": 1901,
+      "Property Damage (Under Threshold)": 16
+    },
+    {
+      "year": "2019",
+      "Fatal": 131,
+      "Injury - Incapacitating": 297,
+      "Injury - Non-Incapacitating": 875,
+      "Injury - Possible": 706,
+      "Property Damage": 2313,
+      "Property Damage (Under Threshold)": 7
+    },
+    {
+      "year": "2020",
+      "Fatal": 153,
+      "Injury - Incapacitating": 249,
+      "Injury - Non-Incapacitating": 840,
+      "Injury - Possible": 657,
+      "Property Damage": 2381,
+      "Property Damage (Under Threshold)": 14
+    },
+    {
+      "year": "2021",
+      "Fatal": 183,
+      "Injury - Incapacitating": 369,
+      "Injury - Non-Incapacitating": 1078,
+      "Injury - Possible": 1127,
+      "Property Damage": 2758,
+      "Property Damage (Under Threshold)": 16
+    },
+    {
+      "year": "2022",
+      "Fatal": 169,
+      "Injury - Incapacitating": 403,
+      "Injury - Non-Incapacitating": 1172,
+      "Injury - Possible": 1411,
+      "Property Damage": 2870,
+      "Property Damage (Under Threshold)": 23
+    },
+    {
+      "year": "2023",
+      "Fatal": 166,
+      "Injury - Incapacitating": 335,
+      "Injury - Non-Incapacitating": 1097,
+      "Injury - Possible": 1301,
+      "Property Damage": 2565,
+      "Property Damage (Under Threshold)": 36
+    },
+    {
+      "year": "2024",
+      "Fatal": 173,
+      "Injury - Incapacitating": 343,
+      "Injury - Non-Incapacitating": 1009,
+      "Injury - Possible": 1130,
+      "Property Damage": 2327,
+      "Property Damage (Under Threshold)": 41
+    },
+    {
+      "year": "2025",
+      "Fatal": 32,
+      "Injury - Incapacitating": 74,
+      "Injury - Non-Incapacitating": 220,
+      "Injury - Possible": 270,
+      "Property Damage": 603,
+      "Property Damage (Under Threshold)": 7
+    }
+  ],
+  "keys": [
+    "Fatal",
+    "Injury - Incapacitating",
+    "Injury - Non-Incapacitating",
+    "Injury - Possible",
+    "Property Damage",
+    "Property Damage (Under Threshold)"
+  ]
+}
