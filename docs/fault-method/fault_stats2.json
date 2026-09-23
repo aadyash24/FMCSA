@@ -1,0 +1,125 @@
+{
+  "cmv_crashes": 45650,
+  "crashes_with_identified_commercial_unit": 42284,
+  "outcome_all": {
+    "single party flagged": 33285,
+    "unattributable (no signal)": 10038,
+    "contested (2+ flagged)": 2234,
+    "no driver record": 93
+  },
+  "outcome_multi_unit": {
+    "single party flagged": 30061,
+    "unattributable (no signal)": 7980,
+    "contested (2+ flagged)": 2234,
+    "no driver record": 74
+  },
+  "multi_unit_total": 40349,
+  "single_flag_party_all": {
+    "commercial driver": 15201,
+    "other driver": 18084
+  },
+  "single_flag_party_multi_unit": {
+    "commercial driver": 12043,
+    "other driver": 18018
+  },
+  "driver_signal_mix": {
+    "action only": 21592,
+    "both action and violation": 12150,
+    "violation only": 4173
+  },
+  "top_actions_commercial_driver": {
+    "Failure to keep proper lane": 5761,
+    "Following improperly": 2877,
+    "Failure to yield": 1927,
+    "Improper lane change": 1554,
+    "Speed too fast for conditions": 949,
+    "Improper turn": 758,
+    "Over correcting": 698,
+    "Careless erratic driving": 615,
+    "Failure to obey traffic controls": 489,
+    "Improper backing": 448,
+    "Failure to observe warnings": 262,
+    "Reckless negligent driving": 248,
+    "Operator inexperience": 214,
+    "Vision obstructed": 152,
+    "Inattentive": 126
+  },
+  "top_actions_other_driver": {
+    "Following improperly": 4072,
+    "Failure to keep proper lane": 3868,
+    "Failure to yield": 3626,
+    "Improper lane change": 1846,
+    "Careless erratic driving": 1611,
+    "Speed too fast for conditions": 1177,
+    "Failure to obey traffic controls": 943,
+    "Reckless negligent driving": 876,
+    "Improper passing": 549,
+    "Over correcting": 489,
+    "Improper turn": 450,
+    "Exceeding posted speed": 341,
+    "Wrong side of road": 309,
+    "Inattentive": 268,
+    "Failure to observe warnings": 257
+  },
+  "manner_by_outcome": {
+    "Front to Rear": {
+      "single party flagged": 9087,
+      "contested (2+ flagged)": 754,
+      "unattributable (no signal)": 1849,
+      "no driver record": 2
+    },
+    "Angle": {
+      "unattributable (no signal)": 1681,
+      "single party flagged": 8757,
+      "contested (2+ flagged)": 858,
+      "no driver record": 9
+    },
+    "Sideswipe same dir": {
+      "single party flagged": 5588,
+      "contested (2+ flagged)": 379,
+      "unattributable (no signal)": 1607,
+      "no driver record": 1
+    },
+    "Not collision w/ MV in transport": {
+      "unattributable (no signal)": 2046,
+      "single party flagged": 3966,
+      "contested (2+ flagged)": 60,
+      "no driver record": 53
+    },
+    "Rear to Side": {
+      "single party flagged": 109,
+      "unattributable (no signal)": 47,
+      "no driver record": 2,
+      "contested (2+ flagged)": 6
+    },
+    "Sideswipe opp dir": {
+      "single party flagged": 997,
+      "unattributable (no signal)": 252,
+      "contested (2+ flagged)": 50,
+      "no driver record": 1
+    },
+    "Head-On": {
+      "single party flagged": 976,
+      "unattributable (no signal)": 167,
+      "contested (2+ flagged)": 66,
+      "no driver record": 1
+    },
+    "Rear to Rear": {
+      "single party flagged": 35,
+      "unattributable (no signal)": 7,
+      "contested (2+ flagged)": 4
+    },
+    "Other": {
+      "single party flagged": 503,
+      "unattributable (no signal)": 242,
+      "contested (2+ flagged)": 43,
+      "no driver record": 4
+    },
+    "Unknown": {
+      "single party flagged": 43,
+      "unattributable (no signal)": 82,
+      "contested (2+ flagged)": 14,
+      "no driver record": 1
+    }
+  }
+}
