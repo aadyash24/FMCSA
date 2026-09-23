@@ -16,11 +16,10 @@ import {
 } from "recharts";
 import { useJson } from "../lib/useJson";
 import type { CountRow, CountyRow, SeverityByYear, Summary, YearlyRow, YearRange } from "../lib/types";
-import { SEVERITY_COLORS } from "../lib/severity";
+import type { ResolvedTheme } from "../lib/theme";
+import { categoricalPalette, severityColors } from "../lib/severity";
 import StatCard from "../components/StatCard";
 import "./DataExploration.css";
-
-const PALETTE = ["#c2410c", "#6b7280", "#e0a83e", "#3a7ca5", "#8f7fc9", "#5a9367", "#c95d63", "#b8b0e0"];
 
 function fmt(n: number) {
   return n.toLocaleString("en-US");
@@ -28,9 +27,25 @@ function fmt(n: number) {
 
 interface DataExplorationProps {
   yearRange: YearRange;
+  theme: ResolvedTheme;
 }
 
-export default function DataExploration({ yearRange }: DataExplorationProps) {
+export default function DataExploration({ yearRange, theme }: DataExplorationProps) {
+  const SEVERITY_COLORS = severityColors(theme);
+  const PALETTE = categoricalPalette(theme);
+  // Recharts needs literal colors, so the CSS variables are mirrored here.
+  const axis = theme === "dark" ? "#9aa4b4" : "#667085";
+  const grid = theme === "dark" ? "#212734" : "#eceff3";
+  const tip = {
+    background: theme === "dark" ? "#171b23" : "#ffffff",
+    border: `1px solid ${theme === "dark" ? "#242a35" : "#e4e7ec"}`,
+    borderRadius: 8,
+    color: theme === "dark" ? "#e7eaf0" : "#101828",
+    fontSize: 12,
+    boxShadow: theme === "dark"
+      ? "0 4px 14px -2px rgb(0 0 0 / 0.5)"
+      : "0 4px 12px -2px rgb(16 24 40 / 0.1)",
+  };
   const { data: summary } = useJson<Summary>("summary.json");
   const { data: yearly } = useJson<YearlyRow[]>("yearly.json");
   const { data: severityByYear } = useJson<SeverityByYear>("severity_by_year.json");
@@ -86,14 +101,14 @@ export default function DataExploration({ yearRange }: DataExplorationProps) {
         <h3>CMV crashes by year</h3>
         <ResponsiveContainer width="100%" height={280}>
           <ComposedChart data={filteredYearly}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis dataKey="year" stroke="var(--text-muted)" fontSize={12} />
-            <YAxis yAxisId="left" stroke="var(--text-muted)" fontSize={12} />
-            <YAxis yAxisId="right" orientation="right" stroke="var(--text-muted)" fontSize={12} />
-            <Tooltip contentStyle={{ background: "var(--panel)", border: "1px solid var(--border)" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+            <XAxis dataKey="year" stroke={axis} fontSize={12} />
+            <YAxis yAxisId="left" stroke={axis} fontSize={12} />
+            <YAxis yAxisId="right" orientation="right" stroke={axis} fontSize={12} />
+            <Tooltip contentStyle={tip} />
             <Legend />
-            <Bar yAxisId="left" dataKey="crashes" name="Crashes" fill="#c2410c" radius={[4, 4, 0, 0]} />
-            <Line yAxisId="right" type="monotone" dataKey="fatalities" name="Fatalities" stroke="#b42318" strokeWidth={2} dot={false} />
+            <Bar yAxisId="left" dataKey="crashes" name="Crashes" fill={PALETTE[0]} radius={[4, 4, 0, 0]} />
+            <Line yAxisId="right" type="monotone" dataKey="fatalities" name="Fatalities" stroke={SEVERITY_COLORS.Fatal} strokeWidth={2} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </section>
@@ -102,13 +117,13 @@ export default function DataExploration({ yearRange }: DataExplorationProps) {
         <h3>Crash severity by year</h3>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={filteredSeverity}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis dataKey="year" stroke="var(--text-muted)" fontSize={12} />
-            <YAxis stroke="var(--text-muted)" fontSize={12} />
-            <Tooltip contentStyle={{ background: "var(--panel)", border: "1px solid var(--border)" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+            <XAxis dataKey="year" stroke={axis} fontSize={12} />
+            <YAxis stroke={axis} fontSize={12} />
+            <Tooltip contentStyle={tip} />
             <Legend />
             {(severityByYear?.keys ?? []).map((key) => (
-              <Bar key={key} dataKey={key} stackId="severity" fill={SEVERITY_COLORS[key] ?? "#999"} />
+              <Bar key={key} dataKey={key} stackId="severity" fill={SEVERITY_COLORS[key] ?? PALETTE[7]} />
             ))}
           </BarChart>
         </ResponsiveContainer>
@@ -120,11 +135,11 @@ export default function DataExploration({ yearRange }: DataExplorationProps) {
           <p className="panel__note">Full dataset, all years</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={manner ?? []} layout="vertical" margin={{ left: 24 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis type="number" stroke="var(--text-muted)" fontSize={12} />
-              <YAxis dataKey="manner" type="category" width={160} stroke="var(--text-muted)" fontSize={11} />
-              <Tooltip contentStyle={{ background: "var(--panel)", border: "1px solid var(--border)" }} />
-              <Bar dataKey="count" fill="#c2410c" radius={[0, 4, 4, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+              <XAxis type="number" stroke={axis} fontSize={12} />
+              <YAxis dataKey="manner" type="category" width={160} stroke={axis} fontSize={11} />
+              <Tooltip contentStyle={tip} />
+              <Bar dataKey="count" fill={PALETTE[0]} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </section>
@@ -147,7 +162,7 @@ export default function DataExploration({ yearRange }: DataExplorationProps) {
                 ))}
               </Pie>
               <Legend layout="vertical" align="right" verticalAlign="middle" wrapperStyle={{ fontSize: 12 }} />
-              <Tooltip contentStyle={{ background: "var(--panel)", border: "1px solid var(--border)" }} />
+              <Tooltip contentStyle={tip} />
             </PieChart>
           </ResponsiveContainer>
         </section>
@@ -157,11 +172,11 @@ export default function DataExploration({ yearRange }: DataExplorationProps) {
           <p className="panel__note">Full dataset, all years</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={weather ?? []} layout="vertical" margin={{ left: 24 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis type="number" stroke="var(--text-muted)" fontSize={12} />
-              <YAxis dataKey="weather" type="category" width={130} stroke="var(--text-muted)" fontSize={11} />
-              <Tooltip contentStyle={{ background: "var(--panel)", border: "1px solid var(--border)" }} />
-              <Bar dataKey="count" fill="#6b7280" radius={[0, 4, 4, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+              <XAxis type="number" stroke={axis} fontSize={12} />
+              <YAxis dataKey="weather" type="category" width={130} stroke={axis} fontSize={11} />
+              <Tooltip contentStyle={tip} />
+              <Bar dataKey="count" fill={PALETTE[1]} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </section>
@@ -171,11 +186,11 @@ export default function DataExploration({ yearRange }: DataExplorationProps) {
           <p className="panel__note">Full dataset, all years</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={light ?? []} layout="vertical" margin={{ left: 24 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis type="number" stroke="var(--text-muted)" fontSize={12} />
-              <YAxis dataKey="condition" type="category" width={130} stroke="var(--text-muted)" fontSize={11} />
-              <Tooltip contentStyle={{ background: "var(--panel)", border: "1px solid var(--border)" }} />
-              <Bar dataKey="count" fill="#3a7ca5" radius={[0, 4, 4, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke={grid} />
+              <XAxis type="number" stroke={axis} fontSize={12} />
+              <YAxis dataKey="condition" type="category" width={130} stroke={axis} fontSize={11} />
+              <Tooltip contentStyle={tip} />
+              <Bar dataKey="count" fill={PALETTE[2]} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </section>
@@ -198,9 +213,9 @@ export default function DataExploration({ yearRange }: DataExplorationProps) {
               {(county ?? []).slice(0, 15).map((row) => (
                 <tr key={row.county}>
                   <td>{row.county}</td>
-                  <td>{fmt(row.crashes)}</td>
-                  <td>{fmt(row.fatalities)}</td>
-                  <td>{fmt(row.injured)}</td>
+                  <td className="tnum">{fmt(row.crashes)}</td>
+                  <td className="tnum">{fmt(row.fatalities)}</td>
+                  <td className="tnum">{fmt(row.injured)}</td>
                 </tr>
               ))}
             </tbody>

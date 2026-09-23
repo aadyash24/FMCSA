@@ -4,6 +4,7 @@ import type { Layer, PathOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useJson } from "../lib/useJson";
 import type { CrashPoints, YearRange } from "../lib/types";
+import type { ResolvedTheme } from "../lib/theme";
 import { severityColor, severityRank } from "../lib/severity";
 import CrashLayer from "./CrashLayer";
 import "./TnMap.css";
@@ -28,18 +29,29 @@ type HighwayFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Geometry, High
 
 // Both road classes are the same blue; interstates read as primary purely by
 // being thicker and more opaque than the US / state routes underneath them.
-const ROAD_BLUE = "#1d4ed8";
-
-const STYLE_BY_TYPE: Record<string, PathOptions> = {
-  Interstate: { color: ROAD_BLUE, weight: 3.6, opacity: 0.95 },
-  "US / State Route": { color: ROAD_BLUE, weight: 1.5, opacity: 0.6 },
-  "Major Highway": { color: ROAD_BLUE, weight: 3, opacity: 0.9 },
+// The dark basemap needs a lighter blue to hold the same contrast ratio.
+const ROAD_BLUE: Record<ResolvedTheme, string> = {
+  light: "#1d4ed8",
+  dark: "#6b95ff",
 };
 
-function styleFor(feature?: GeoJSON.Feature<GeoJSON.Geometry, HighwayProps>): PathOptions {
-  const type = feature?.properties?.route_type ?? "US / State Route";
-  return STYLE_BY_TYPE[type] ?? STYLE_BY_TYPE["US / State Route"];
+function stylesFor(theme: ResolvedTheme): Record<string, PathOptions> {
+  const color = ROAD_BLUE[theme];
+  return {
+    Interstate: { color, weight: 3.6, opacity: 0.95 },
+    "US / State Route": { color, weight: 1.5, opacity: theme === "dark" ? 0.7 : 0.6 },
+    "Major Highway": { color, weight: 3, opacity: 0.9 },
+  };
 }
+
+// Standard OpenStreetMap tiles, which need no API key. Carto's dark_all basemap
+// would be the nicer starting point, but it now watermarks every tile with
+// "API KEY REQUIRED" for unregistered use, so it is not usable here.
+//
+// Dark mode is therefore a CSS filter over the tile pane (see TnMap.css). The
+// filter is scoped to .leaflet-tile-pane so the crash canvas and the road
+// overlay, which live in overlayPane, keep their real colors.
+const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 function onEachHighway(
   feature: GeoJSON.Feature<GeoJSON.Geometry, HighwayProps>,
@@ -55,9 +67,18 @@ function fmt(n: number) {
 
 interface TnMapProps {
   yearRange: YearRange;
+  theme: ResolvedTheme;
 }
 
-export default function TnMap({ yearRange }: TnMapProps) {
+export default function TnMap({ yearRange, theme }: TnMapProps) {
+  const styleFor = useMemo(() => {
+    const table = stylesFor(theme);
+    return (feature?: GeoJSON.Feature<GeoJSON.Geometry, HighwayProps>): PathOptions => {
+      const type = feature?.properties?.route_type ?? "US / State Route";
+      return table[type] ?? table["US / State Route"];
+    };
+  }, [theme]);
+
   const { data: highways, loading, error } = useJson<HighwayFeatureCollection>(
     "tn_highways.geojson"
   );
@@ -149,29 +170,22 @@ export default function TnMap({ yearRange }: TnMapProps) {
         scrollWheelZoom
         preferCanvas
       >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url={TILE_URL}
+        />
+
         <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="OpenStreetMap">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Carto Light">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            />
-          </LayersControl.BaseLayer>
 
           {stateRoutes && (
             <LayersControl.Overlay checked name="US / State Routes">
-              <GeoJSON data={stateRoutes} style={styleFor} onEachFeature={onEachHighway} />
+              <GeoJSON key={`sr-${theme}`} data={stateRoutes} style={styleFor} onEachFeature={onEachHighway} />
             </LayersControl.Overlay>
           )}
 
           {interstates && (
             <LayersControl.Overlay checked name="Interstates">
-              <GeoJSON data={interstates} style={styleFor} onEachFeature={onEachHighway} />
+              <GeoJSON key={`i-${theme}`} data={interstates} style={styleFor} onEachFeature={onEachHighway} />
             </LayersControl.Overlay>
           )}
         </LayersControl>
@@ -182,6 +196,7 @@ export default function TnMap({ yearRange }: TnMapProps) {
             keys={crashes.keys}
             yearRange={yearRange}
             enabled={enabled}
+            theme={theme}
             onRenderedChange={handleRenderedChange}
           />
         )}
@@ -208,7 +223,7 @@ export default function TnMap({ yearRange }: TnMapProps) {
                       checked={!disabled[key]}
                       onChange={() => toggleSeverity(key)}
                     />
-                    <span className="swatch" style={{ background: severityColor(key) }} />
+                    <span className="swatch" style={{ background: severityColor(key, theme) }} />
                     <span className="swatch-label">{key}</span>
                   </label>
                 </li>

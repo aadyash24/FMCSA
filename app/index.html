@@ -5,6 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TN CMV Crash Dashboard</title>
+    <script>
+      // Set the theme before first paint so a dark-mode load never flashes white.
+      (function () {
+        try {
+          var c = localStorage.getItem('tn-cmv-theme');
+          var dark = c === 'dark' ||
+            ((!c || c === 'system') && matchMedia('(prefers-color-scheme: dark)').matches);
+          var t = dark ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,52 +1,57 @@
-.mode-selector {
+.theme-toggle {
   display: inline-flex;
   padding: 2px;
   gap: 2px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 999px;
-  flex-wrap: wrap;
 }
 
-.mode-tab {
+.theme-toggle__btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 13px;
-  border-radius: 999px;
+  gap: 5px;
+  padding: 5px 10px;
   border: 0;
+  border-radius: 999px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
 
-.mode-tab:hover {
+.theme-toggle__btn:hover {
   color: var(--text);
   background: var(--surface-hover);
 }
 
-.mode-tab--active {
+.theme-toggle__btn.is-active {
   background: var(--surface);
   color: var(--text);
   box-shadow: var(--shadow-sm);
 }
 
-.mode-tab__badge {
-  font-size: 9.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-  background: var(--border);
-  color: var(--text-subtle);
-  padding: 1px 5px;
-  border-radius: 4px;
+.theme-toggle__btn svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.mode-tab--active .mode-tab__badge {
-  background: var(--accent-soft);
+.theme-toggle__btn.is-active svg {
   color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .theme-toggle__btn span {
+    display: none;
+  }
+  .theme-toggle__btn {
+    padding: 6px 8px;
+  }
 }

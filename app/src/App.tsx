@@ -1,14 +1,17 @@
 import { useMemo, useState } from "react";
 import ModeSelector from "./components/ModeSelector";
+import ThemeToggle from "./components/ThemeToggle";
 import TnMap from "./components/TnMap";
 import DataExploration from "./modes/DataExploration";
 import ComingSoon from "./modes/ComingSoon";
 import { useJson } from "./lib/useJson";
+import { useTheme } from "./lib/useTheme";
 import type { DashboardMode, YearlyRow, YearRange } from "./lib/types";
 import "./App.css";
 
 function App() {
   const [mode, setMode] = useState<DashboardMode>("explore");
+  const { choice, resolved, setChoice } = useTheme();
 
   // The year filter lives here rather than inside Mode 1 so that the map and
   // the charts always describe the same slice of the data.
@@ -25,11 +28,14 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <div>
+        <div className="app-header__title">
           <h1>Tennessee CMV Crash Dashboard</h1>
           <p>Commercial motor vehicle crashes on TN interstates and state routes</p>
         </div>
-        <ModeSelector mode={mode} onChange={setMode} />
+        <div className="app-header__actions">
+          <ModeSelector mode={mode} onChange={setMode} />
+          <ThemeToggle choice={choice} onChange={setChoice} />
+        </div>
       </header>
 
       <div className="app-filters">
@@ -71,11 +77,11 @@ function App() {
 
       <main className="app-main">
         <section className="app-map-panel">
-          <TnMap yearRange={yearRange} />
+          <TnMap yearRange={yearRange} theme={resolved} />
         </section>
 
         <section className="app-mode-panel">
-          {mode === "explore" && <DataExploration yearRange={yearRange} />}
+          {mode === "explore" && <DataExploration yearRange={yearRange} theme={resolved} />}
           {mode === "risk" && (
             <ComingSoon
               title="Mode 2 · Risk Assessment"

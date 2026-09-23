@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import type { CrashPoint, YearRange } from "../lib/types";
+import type { ResolvedTheme } from "../lib/theme";
 import { severityColor, severityRank } from "../lib/severity";
 
 /**
@@ -33,6 +34,7 @@ interface CrashLayerProps {
   keys: string[];
   yearRange: YearRange;
   enabled: Record<string, boolean>;
+  theme: ResolvedTheme;
   onRenderedChange?: (stats: {
     rendered: number;
     inView: number;
@@ -46,6 +48,7 @@ export default function CrashLayer({
   keys,
   yearRange,
   enabled,
+  theme,
   onRenderedChange,
 }: CrashLayerProps) {
   const map = useMap();
@@ -108,8 +111,8 @@ export default function CrashLayer({
         renderer,
         radius,
         stroke: false,
-        fillColor: severityColor(label),
-        fillOpacity: 0.72,
+        fillColor: severityColor(label, theme),
+        fillOpacity: theme === "dark" ? 0.8 : 0.72,
       });
       marker.bindPopup(
         `<strong>${label}</strong><br/>${year}<br/><span style="color:#666">${lat.toFixed(
@@ -129,7 +132,7 @@ export default function CrashLayer({
       matching: eligible.length,
       thinned: stride > 1,
     });
-  }, [eligible, keys, map, viewVersion, onRenderedChange]);
+  }, [eligible, keys, map, viewVersion, theme, onRenderedChange]);
 
   return null;
 }
