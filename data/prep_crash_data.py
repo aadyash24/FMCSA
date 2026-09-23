@@ -128,6 +128,7 @@ def main():
     route_counts = {}
     severity_by_year = {}
     points = []
+    severity_index = {}
 
     total = 0
     total_fatalities = 0
@@ -190,7 +191,17 @@ def main():
                 try:
                     lat_f, lon_f = float(lat), float(lon)
                     if 34.0 < lat_f < 37.0 and -91.0 < lon_f < -81.0:
-                        points.append([round(lat_f, 4), round(lon_f, 4), int(year), sev_label])
+                        # Severity is stored as an index into the keys array the
+                        # map reads, not as a repeated label string. On 45k rows
+                        # that is the difference between a ~2 MB and a ~1 MB fetch.
+                        points.append(
+                            [
+                                round(lat_f, 4),
+                                round(lon_f, 4),
+                                int(year),
+                                severity_index.setdefault(sev_label, len(severity_index)),
+                            ]
+                        )
                 except ValueError:
                     pass
 
@@ -243,8 +254,9 @@ def main():
     with open(os.path.join(OUT_DIR, "route.json"), "w") as f:
         json.dump(to_sorted_list(route_counts, "route"), f, indent=2)
 
+    severity_keys = [k for k, _ in sorted(severity_index.items(), key=lambda kv: kv[1])]
     with open(os.path.join(OUT_DIR, "points.json"), "w") as f:
-        json.dump(points, f)
+        json.dump({"keys": severity_keys, "points": points}, f, separators=(",", ":"))
 
     print(f"Processed {total} rows ({min_year}-{max_year})")
     print(f"Fatalities: {total_fatalities}, Injured: {total_injuries}")

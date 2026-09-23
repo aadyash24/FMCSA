@@ -9,6 +9,3 @@ app/dist-ssr
 *.local
 
 .DS_Store
-
-# Generated but not used by the POC yet - regenerate with data/prep_crash_data.py
-app/public/data/points.json

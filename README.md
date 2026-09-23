@@ -115,8 +115,56 @@ means the `base` value stopped matching the repo name.
 - [x] Mode switcher (Mode 1 active, Mode 2/3 stubbed)
 - [x] Mode 1: crash severity, crash type/manner of collision, weather, light
       condition, route type, county breakdown, year-range filter
+- [x] Crash points on the map, colored by severity, filterable by year and
+      severity, with the year filter shared between the map and the charts
 - [ ] Swap in real TDOT highway geometry
 - [x] Push to the GitHub repo + live on Pages
-- [ ] Make the map interactive (crash points, county choropleth, etc.)
+- [ ] County choropleth (needs TN county polygons)
 - [ ] Mode 2: Risk Assessment (needs spec)
 - [ ] Mode 3: Predictive Modeling (needs a trained model)
+- [ ] Plausible-fault framework (Collision / Unit / Person / Violation tables)
+
+## Crash points on the map
+
+`data/prep_crash_data.py` writes `app/public/data/points.json`, which holds the
+45,438 crashes (of 45,650) that carry usable TN coordinates. The format is
+deliberately compact, because a label repeated 45k times is most of the file:
+
+```json
+{ "keys": ["Property Damage", "Fatal", ...],
+  "points": [[35.9116, -87.7806, 2017, 0], ...] }
+```
+
+Each point is `[lat, lon, year, severityIndex]`, where `severityIndex` indexes
+into `keys`. That keeps the fetch at about 1.2 MB instead of roughly 2 MB.
+
+`app/src/components/CrashLayer.tsx` draws them. Leaflet will not draw 45k
+individual SVG markers at an interactive frame rate, so the layer:
+
+- puts every marker on one shared `L.canvas()` renderer, so a pan repaints a
+  single canvas instead of touching 45k DOM nodes;
+- builds markers only for points inside the padded viewport;
+- thins what is left by a fixed stride when it still exceeds 9,000, so the
+  statewide view stays smooth. The stride is deterministic, so the thinned
+  view does not shimmer while panning. Zoom in and every point in view is drawn.
+
+The legend, bottom right of the map, toggles severities on and off and reports
+what is drawn. It distinguishes the two cases that look alike but are not: a
+thinned view ("Showing 7,573 of 45,438 crashes in view, zoom in to see them
+all") and a complete one that simply has most crashes off screen ("Showing all
+752 crashes in view"). The test is whether a stride was applied, not whether
+the drawn count is below the statewide total.
+
+The map fits to a Tennessee bounding box rather than centering on the state.
+That needs fractional zoom (`zoomSnap={0.25}`), because TN is wide and short
+while the map panel is tall and narrow: at Leaflet's default whole-number
+snapping the fit rounds down a level and the state ends up small in the frame.
+
+### Data caveats worth knowing
+
+- Geocoding coverage climbs over time: 97.5 percent of 2015 crashes have usable
+  coordinates, versus 100 percent from 2022 on. Early years are slightly
+  under-plotted relative to their true counts.
+- 2025 is a partial year (1,206 crashes against roughly 5,000 in a full year),
+  so the trend charts drop off a cliff at the right edge. That is the extract,
+  not the roads.

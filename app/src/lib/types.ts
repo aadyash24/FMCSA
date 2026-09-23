@@ -32,5 +32,12 @@ export interface CountRow {
   [key: string]: string | number;
 }
 
-// [lat, lon, year, severityLabel]
-export type CrashPoint = [number, number, number, string];
+/** [lat, lon, year, severityIndex] - severityIndex points into CrashPoints.keys */
+export type CrashPoint = [number, number, number, number];
+
+export interface CrashPoints {
+  keys: string[];
+  points: CrashPoint[];
+}
+
+export type YearRange = [string, string];
