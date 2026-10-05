@@ -1,0 +1,151 @@
+{
+  "version": "0.1.0",
+  "notes": [
+    "Fault points per driver, scored upward: 0 = no fault indication, 1 = full fault.",
+    "Within a category only the strongest hit counts; categories add, and the total is capped at 1.",
+    "Codes are TITAN codes, two digits. Meanings come from vwLookup_CodeValues.",
+    "Severity is never an input. Outcome follows vehicle mass, not culpability."
+  ],
+
+  "thresholds": {
+    "undetermined_below": 0.2,
+    "equal_within": 0.15,
+    "geometry_cap": 0.3,
+    "min_completeness": 0.5
+  },
+
+  "action": {
+    "_source": "Person_Action.ActionCde (officer-coded driver action)",
+    "03": [0.5, "Wrong side of road"],
+    "04": [0.5, "Wrong way on one-way"],
+    "07": [0.5, "Failure to yield"],
+    "08": [0.5, "Failure to obey traffic control"],
+    "12": [0.5, "Following improperly"],
+    "25": [0.5, "Reckless/negligent driving"],
+    "26": [0.5, "Aggressive driving/road rage"],
+    "27": [0.5, "Racing"],
+    "06": [0.4, "Failure to keep in proper lane"],
+    "13": [0.4, "Improper backing"],
+    "14": [0.4, "Improper lane change"],
+    "15": [0.4, "Improper passing"],
+    "16": [0.4, "Improper turn"],
+    "24": [0.4, "Careless/erratic driving"],
+    "28": [0.4, "Exceeding posted speed"],
+    "29": [0.4, "Speed too fast for conditions"],
+    "01": [0.3, "Inattentive"],
+    "09": [0.3, "Failure to observe warnings"],
+    "10": [0.3, "Failure to signal"],
+    "38": [0.3, "Driver distraction"],
+    "39": [0.3, "Texting"],
+    "40": [0.3, "GPS distraction"],
+    "22": [0.2, "Over-correcting"],
+    "11": [0.2, "Failure to use lights"],
+    "20": [0.2, "Operator inexperience"],
+    "30": [0.2, "Speed too slow"],
+    "17": [0.2, "Improper tow/push"],
+    "19": [0.2, "Improper loading"],
+    "21": [0.2, "No required equipment"],
+    "18": [0.1, "Improper hazmat carry"],
+    "05": [0.1, "License restriction"]
+  },
+  "action_neutral": ["00", "23", "31", "97", "98", "99"],
+
+  "violation": {
+    "_source": "Person_Violation.ViolationCategoryCde (citation issued)",
+    "01": [0.5, "Cited: alcohol/drugs"],
+    "02": [0.5, "Cited: reckless/careless"],
+    "03": [0.4, "Cited: other moving violation"],
+    "04": [0.05, "Cited: non-moving violation"]
+  },
+
+  "alcohol": {
+    "_source": "Person_Detail.AlcoholPresenceCde",
+    "01": [0.3, "Alcohol present"]
+  },
+  "drug": {
+    "_source": "Person_Detail.DrugPresenceCde",
+    "01": [0.3, "Drugs present"]
+  },
+  "presence_unknown": ["", "08", "99"],
+
+  "license": {
+    "_source": "Person_Detail.DLStatusCde. Low weight: license status rarely causes a crash.",
+    "00": [0.1, "Not licensed"],
+    "01": [0.1, "License suspended"],
+    "02": [0.1, "License revoked"],
+    "03": [0.05, "License expired"],
+    "04": [0.1, "License canceled/denied"],
+    "07": [0.1, "CDL disqualified"]
+  },
+  "license_unknown": ["", "99"],
+
+  "geometry": {
+    "_source": "Unit.ManeuverCde + Unit.FirstImpactCde + crash MannerCollisionCde. Each rule gives points to 'self'. Geometry is capped by thresholds.geometry_cap.",
+    "rules": [
+      {
+        "id": "cut_in",
+        "label": "Changed lanes in front of the vehicle that struck it",
+        "self_maneuver": ["16"],
+        "self_impact": ["04", "05", "06", "07", "08"],
+        "other_impact": ["12", "01", "11"],
+        "points": 0.3
+      },
+      {
+        "id": "rear_end_striker",
+        "label": "Struck the rear of a vehicle ahead",
+        "self_impact": ["12"],
+        "other_impact": ["06"],
+        "other_maneuver": ["01", "02", "03", "04", "07"],
+        "points": 0.3
+      },
+      {
+        "id": "backing",
+        "label": "Backing up",
+        "self_maneuver": ["15", "86", "87"],
+        "points": 0.25
+      },
+      {
+        "id": "lane_change_sideswipe",
+        "label": "Changing lanes in a same-direction sideswipe",
+        "self_maneuver": ["16"],
+        "manner": ["04"],
+        "points": 0.25
+      },
+      {
+        "id": "left_turn_angle",
+        "label": "Turning left across a vehicle going straight",
+        "self_maneuver": ["13"],
+        "other_maneuver": ["01"],
+        "manner": ["03", "02"],
+        "points": 0.25
+      },
+      {
+        "id": "u_turn",
+        "label": "Making a U-turn",
+        "self_maneuver": ["14"],
+        "points": 0.2
+      },
+      {
+        "id": "entering_traffic",
+        "label": "Entering traffic from a parked or private-drive position",
+        "self_maneuver": ["06", "88"],
+        "other_maneuver": ["01"],
+        "points": 0.2
+      },
+      {
+        "id": "parked_illegally",
+        "label": "Parked illegally",
+        "self_maneuver": ["18"],
+        "points": 0.1
+      }
+    ]
+  },
+  "maneuver_unknown": ["", "99"],
+  "impact_unknown": ["", "99"],
+
+  "surface": {
+    "_source": "Unit.SurfCondCde. Not fault points: adverse surface explains a crash where neither driver is coded.",
+    "adverse": ["02", "03", "04", "05", "06", "07", "80"],
+    "unknown": ["", "99"]
+  }
+}

@@ -1,0 +1,231 @@
+{
+  "rules_version": "0.1.0",
+  "crashes": 45650,
+  "in_scope": 151,
+  "funnel_by_year": {
+    "2015": {
+      "No unit records": 3372,
+      "Single vehicle": 2,
+      "3+ vehicles": 24,
+      "No driver records": 29
+    },
+    "2016": {
+      "No unit records": 1782,
+      "No driver records": 913,
+      "3+ vehicles": 567,
+      "Both vehicles commercial": 52,
+      "Single vehicle": 186
+    },
+    "2017": {
+      "3+ vehicles": 1012,
+      "No driver records": 1785,
+      "Both vehicles commercial": 152,
+      "Single vehicle": 351,
+      "No commercial unit identified": 6
+    },
+    "2018": {
+      "No driver records": 1871,
+      "3+ vehicles": 1044,
+      "Both vehicles commercial": 144,
+      "Single vehicle": 422,
+      "No commercial unit identified": 5
+    },
+    "2019": {
+      "Both vehicles commercial": 163,
+      "3+ vehicles": 1287,
+      "No driver records": 2357,
+      "Single vehicle": 515,
+      "No commercial unit identified": 7
+    },
+    "2020": {
+      "No driver records": 2332,
+      "3+ vehicles": 1272,
+      "Single vehicle": 541,
+      "Both vehicles commercial": 138,
+      "No commercial unit identified": 10,
+      "One driver record missing": 1
+    },
+    "2021": {
+      "3+ vehicles": 1708,
+      "No driver records": 2701,
+      "Both vehicles commercial": 184,
+      "No commercial unit identified": 334,
+      "Single vehicle": 604
+    },
+    "2022": {
+      "No commercial unit identified": 529,
+      "Both vehicles commercial": 209,
+      "No driver records": 2869,
+      "3+ vehicles": 1718,
+      "Single vehicle": 718,
+      "One driver record missing": 5
+    },
+    "2023": {
+      "3+ vehicles": 1592,
+      "No driver records": 2319,
+      "No commercial unit identified": 517,
+      "Single vehicle": 623,
+      "Both vehicles commercial": 191,
+      "One driver record missing": 232,
+      "In scope": 26
+    },
+    "2024": {
+      "Single vehicle": 595,
+      "No driver records": 1509,
+      "3+ vehicles": 1443,
+      "One driver record missing": 779,
+      "No commercial unit identified": 432,
+      "In scope": 111,
+      "Both vehicles commercial": 154
+    },
+    "2025": {
+      "No commercial unit identified": 83,
+      "Single vehicle": 154,
+      "One driver record missing": 210,
+      "3+ vehicles": 327,
+      "Both vehicles commercial": 48,
+      "No driver records": 370,
+      "In scope": 14
+    }
+  },
+  "outcome": {
+    "Undetermined": 63,
+    "Truck driver": 30,
+    "Non-truck driver": 58
+  },
+  "outcome_by_severity": {
+    "Property damage": {
+      "Undetermined": 40,
+      "Truck driver": 16,
+      "Non-truck driver": 40
+    },
+    "Injury": {
+      "Non-truck driver": 18,
+      "Undetermined": 21,
+      "Truck driver": 14
+    },
+    "Fatal": {
+      "Undetermined": 2
+    }
+  },
+  "basis_by_outcome": {
+    "Undetermined": {
+      "No fault signal": 42,
+      "Insufficient data": 9,
+      "Adverse road surface, neither driver coded": 12
+    },
+    "Truck driver": {
+      "Geometry only": 19,
+      "Officer-coded": 11
+    },
+    "Non-truck driver": {
+      "Officer-coded": 33,
+      "Geometry only": 25
+    }
+  },
+  "undetermined_reasons": {
+    "No fault signal": 42,
+    "Insufficient data": 9,
+    "Adverse road surface, neither driver coded": 12
+  },
+  "top_reasons_truck": {
+    "Changing lanes in a same-direction sideswipe": 8,
+    "Turning left across a vehicle going straight": 7,
+    "Struck the rear of a vehicle ahead": 6,
+    "Cited: other moving violation": 4,
+    "Backing up": 4,
+    "Failure to keep in proper lane": 2,
+    "Failure to yield": 1,
+    "Improper lane change": 1,
+    "Improper turn": 1,
+    "Improper passing": 1,
+    "Improper backing": 1
+  },
+  "top_reasons_other": {
+    "Struck the rear of a vehicle ahead": 34,
+    "Not licensed": 11,
+    "Cited: other moving violation": 10,
+    "Following improperly": 8,
+    "Cited: non-moving violation": 6,
+    "Changed lanes in front of the vehicle that struck it": 5,
+    "Failure to keep in proper lane": 4,
+    "Alcohol present": 4,
+    "License suspended": 4,
+    "Changing lanes in a same-direction sideswipe": 3,
+    "Turning left across a vehicle going straight": 3,
+    "Failure to yield": 2
+  },
+  "geometry_view": {
+    "in_scope": 20433,
+    "in_scope_by_year": {
+      "2015": 29,
+      "2016": 913,
+      "2017": 1785,
+      "2018": 1871,
+      "2019": 2357,
+      "2020": 2333,
+      "2021": 2701,
+      "2022": 2874,
+      "2023": 2577,
+      "2024": 2399,
+      "2025": 594
+    },
+    "outcome": {
+      "Non-truck driver": 4640,
+      "Undetermined": 12598,
+      "Truck driver": 3137,
+      "Equal fault": 58
+    },
+    "outcome_by_severity": {
+      "Injury": {
+        "Non-truck driver": 1742,
+        "Undetermined": 4705,
+        "Truck driver": 1432,
+        "Equal fault": 21
+      },
+      "Property damage": {
+        "Non-truck driver": 2823,
+        "Undetermined": 7575,
+        "Truck driver": 1672,
+        "Equal fault": 37
+      },
+      "Fatal": {
+        "Undetermined": 318,
+        "Non-truck driver": 75,
+        "Truck driver": 33
+      }
+    },
+    "undetermined_reasons": {
+      "No geometry pattern": 6547,
+      "Insufficient data": 4124,
+      "Adverse road surface, no pattern": 1927
+    },
+    "top_patterns_truck": {
+      "Struck the rear of a vehicle ahead": 1058,
+      "Changing lanes in a same-direction sideswipe": 874,
+      "Turning left across a vehicle going straight": 604,
+      "Backing up": 383,
+      "Changed lanes in front of the vehicle that struck it": 174,
+      "Making a U-turn": 79,
+      "Parked illegally": 53,
+      "Entering traffic from a parked or private-drive position": 23
+    },
+    "top_patterns_other": {
+      "Struck the rear of a vehicle ahead": 2974,
+      "Changing lanes in a same-direction sideswipe": 665,
+      "Turning left across a vehicle going straight": 591,
+      "Changed lanes in front of the vehicle that struck it": 338,
+      "Making a U-turn": 51,
+      "Backing up": 45,
+      "Entering traffic from a parked or private-drive position": 34,
+      "Parked illegally": 24
+    },
+    "agreement_with_full_view": {
+      "Undetermined | Undetermined": 63,
+      "Non-truck driver | Non-truck driver": 45,
+      "Truck driver | Truck driver": 25,
+      "Non-truck driver | Undetermined": 13,
+      "Truck driver | Undetermined": 5
+    }
+  }
+}

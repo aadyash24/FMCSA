@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import type { CrashPoint, YearRange } from "../lib/types";
+import type { CrashData } from "../lib/crashes";
 import type { ResolvedTheme } from "../lib/theme";
 import { severityColor, severityRank } from "../lib/severity";
 
@@ -18,6 +18,9 @@ import { severityColor, severityRank } from "../lib/severity";
  *
  * The stride is deterministic, so the thinned view does not shimmer as you pan.
  * The point count is reported upward so the legend can say what is being shown.
+ *
+ * Filtering happens upstream (lib/crashes.ts): this layer draws exactly the
+ * crash rows it is handed, so the map always matches the charts.
  */
 
 const MAX_RENDERED = 9000;
@@ -30,11 +33,16 @@ function radiusForZoom(zoom: number): number {
 }
 
 interface CrashLayerProps {
-  points: CrashPoint[];
-  keys: string[];
-  yearRange: YearRange;
-  enabled: Record<string, boolean>;
+  data: CrashData;
+  /** Row indexes of the crashes to draw. */
+  rows: number[];
   theme: ResolvedTheme;
+  /** Point color per crash row; defaults to severity. */
+  colorFor?: (i: number) => string;
+  /** Draw order per crash row, higher on top; defaults to severity rank. */
+  rankFor?: (i: number) => number;
+  /** Extra popup line per crash row. */
+  popupExtra?: (i: number) => string;
   onRenderedChange?: (stats: {
     rendered: number;
     inView: number;
@@ -43,14 +51,7 @@ interface CrashLayerProps {
   }) => void;
 }
 
-export default function CrashLayer({
-  points,
-  keys,
-  yearRange,
-  enabled,
-  theme,
-  onRenderedChange,
-}: CrashLayerProps) {
+export default function CrashLayer({ data, rows, theme, colorFor, rankFor, popupExtra, onRenderedChange }: CrashLayerProps) {
   const map = useMap();
   const rendererRef = useRef<L.Canvas | null>(null);
   const groupRef = useRef<L.LayerGroup | null>(null);
@@ -75,17 +76,14 @@ export default function CrashLayer({
     };
   }, [map]);
 
-  // Year + severity filtering is independent of panning, so it is memoized
-  // separately from the per-viewport rebuild below.
+  // Drop rows without coordinates, then draw least severe first so fatal
+  // crashes land on top of the canvas stack. Independent of panning.
   const eligible = useMemo(() => {
-    const [from, to] = [Number(yearRange[0]), Number(yearRange[1])];
-    const kept = points.filter((p) => {
-      if (p[2] < from || p[2] > to) return false;
-      return enabled[keys[p[3]]] !== false;
-    });
-    // Least severe first so fatal crashes land on top of the canvas stack.
-    return kept.sort((a, b) => severityRank(keys[a[3]]) - severityRank(keys[b[3]]));
-  }, [points, keys, yearRange, enabled]);
+    const { lat, severity } = data.cols;
+    const rank = data.keys.severity.map(severityRank);
+    const order = rankFor ?? ((i: number) => rank[severity[i]]);
+    return rows.filter((i) => lat[i] !== null).sort((a, b) => order(a) - order(b));
+  }, [data, rows, rankFor]);
 
   useEffect(() => {
     const group = groupRef.current;
@@ -96,28 +94,31 @@ export default function CrashLayer({
     const zoom = map.getZoom();
     const radius = radiusForZoom(zoom);
 
-    const inView: CrashPoint[] = [];
-    for (const p of eligible) {
-      if (bounds.contains([p[0], p[1]])) inView.push(p);
+    const { lat: lats, lon: lons, year: years, severity, manner } = data.cols;
+    const inView: number[] = [];
+    for (const i of eligible) {
+      if (bounds.contains([lats[i] as number, lons[i] as number])) inView.push(i);
     }
 
     const stride = inView.length > MAX_RENDERED ? Math.ceil(inView.length / MAX_RENDERED) : 1;
 
     group.clearLayers();
-    for (let i = 0; i < inView.length; i += stride) {
-      const [lat, lon, year, sevIdx] = inView[i];
-      const label = keys[sevIdx];
+    for (let k = 0; k < inView.length; k += stride) {
+      const i = inView[k];
+      const lat = lats[i] as number;
+      const lon = lons[i] as number;
+      const label = data.keys.severity[severity[i]];
       const marker = L.circleMarker([lat, lon], {
         renderer,
         radius,
         stroke: false,
-        fillColor: severityColor(label, theme),
+        fillColor: colorFor ? colorFor(i) : severityColor(label, theme),
         fillOpacity: theme === "dark" ? 0.8 : 0.72,
       });
       marker.bindPopup(
-        `<strong>${label}</strong><br/>${year}<br/><span style="color:#666">${lat.toFixed(
-          4
-        )}, ${lon.toFixed(4)}</span>`
+        `<strong>${label}</strong><br/>${years[i]} · ${data.keys.manner[manner[i]]}<br/>${
+          data.keys.county[data.cols.county[i]]
+        } County${popupExtra ? `<br/>${popupExtra(i)}` : ""}<br/><span style="color:#666">${lat.toFixed(4)}, ${lon.toFixed(4)}</span>`
       );
       group.addLayer(marker);
     }
@@ -132,7 +133,7 @@ export default function CrashLayer({
       matching: eligible.length,
       thinned: stride > 1,
     });
-  }, [eligible, keys, map, viewVersion, theme, onRenderedChange]);
+  }, [eligible, data, map, viewVersion, theme, colorFor, popupExtra, onRenderedChange]);
 
   return null;
 }

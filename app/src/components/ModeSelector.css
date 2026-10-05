@@ -1,23 +1,15 @@
 .mode-selector {
-  display: inline-flex;
-  padding: 2px;
-  gap: 2px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  flex-wrap: wrap;
+  display: flex;
+  gap: 5px;
 }
 
 .mode-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 13px;
-  border-radius: 999px;
+  padding: 5px 14px;
+  border-radius: 7px;
   border: 0;
-  background: transparent;
+  background: var(--surface-hover);
   color: var(--text-muted);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -25,28 +17,11 @@
 }
 
 .mode-tab:hover {
-  color: var(--text);
-  background: var(--surface-hover);
-}
-
-.mode-tab--active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
-}
-
-.mode-tab__badge {
-  font-size: 9.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-  background: var(--border);
-  color: var(--text-subtle);
-  padding: 1px 5px;
-  border-radius: 4px;
-}
-
-.mode-tab--active .mode-tab__badge {
-  background: var(--accent-soft);
   color: var(--accent);
+}
+
+.mode-tab--active,
+.mode-tab--active:hover {
+  background: var(--accent);
+  color: var(--accent-contrast);
 }

@@ -41,7 +41,7 @@ export function severityColor(label: string, theme: ResolvedTheme = "light"): st
 }
 
 /** Least severe first, so the worst crashes get drawn on top of the pile. */
-const SEVERITY_ORDER = [
+export const SEVERITY_ORDER = [
   "Property Damage (Under Threshold)",
   "Property Damage",
   "Unknown",

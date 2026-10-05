@@ -256,6 +256,12 @@
   }
 }
 
+/* The basemap is greyed out so only the overlays carry color: the interstates
+   and state routes, and the crashes. Local roads stay visible as grey context. */
+.tn-map .leaflet-tile-pane {
+  filter: grayscale(1) contrast(0.92) brightness(1.04);
+}
+
 /* --- dark basemap -----------------------------------------------------------
    OSM only ships a light basemap, so dark mode inverts the tiles and rotates
    the hue back so water stays blue and green stays green. Scoped to the tile
@@ -264,11 +270,38 @@
    --------------------------------------------------------------------------- */
 
 [data-theme="dark"] .tn-map .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
+  filter: invert(1) grayscale(1) brightness(0.85) contrast(0.85);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .tn-map .leaflet-tile-pane {
-    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
+    filter: invert(1) grayscale(1) brightness(0.85) contrast(0.85);
   }
+}
+
+.tn-map-legend__county {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tn-map-legend__county button {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-radius: 6px;
+  font-size: 10.5px;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.tn-map-legend__county button:hover {
+  color: var(--accent);
+  border-color: var(--accent);
 }

@@ -4,10 +4,15 @@ A dashboard for exploring commercial motor vehicle (CMV) crashes on Tennessee
 interstates and state routes. Built as a static site (Vite + React + Leaflet)
 deployed to GitHub Pages, with R/Python used offline for data prep.
 
-This is the **skeleton** build from the FMCSA project's task list: a TN map
-with highways highlighted, a mode switcher, and Mode 1 (Data Exploration)
-fully wired up. Mode 2 (Risk Assessment) and Mode 3 (Predictive Modeling) are
-stubbed in as "coming soon" per the task list.
+Sections: Overview (project and team), Exploratory Analysis, Manner of
+Collision, Corridor Analysis (preliminary, on placeholder highway lines), and
+At-Fault Analysis (preliminary rule weights). The layout follows the UConn CT
+Crash FMCSA dashboard: count tiles and gauges on the left, map in the centre,
+charts to the right and below, dark theme by default. A slide-out Filters panel
+(year, county, FMCSA reportable criteria, severity, vehicles, manner, route
+class, road surface, weather, light, work zone, intersection, school bus,
+agency) applies to the map and every chart on every tab. `?tab=fault` (or
+`explore`, `manner`, `corridor`) links straight to a tab.
 
 ## Status / what's real vs. placeholder
 
@@ -32,17 +37,20 @@ stubbed in as "coming soon" per the task list.
 FMCSA/
 ├── app/                    Vite + React + Leaflet site (this is what deploys)
 │   ├── src/
-│   │   ├── App.tsx          Layout: header, mode tabs, map + mode panel
+│   │   ├── App.tsx          Header, tab pills, shared filters, renders the active tab
 │   │   ├── components/
-│   │   │   ├── TnMap.tsx      Leaflet map, interstate/state-route layers
+│   │   │   ├── DashboardGrid.tsx   The UConn-style frame every map tab uses
+│   │   │   ├── Widgets.tsx         Panels (with tabs), indicator tiles, gauges
+│   │   │   ├── FilterPanel.tsx     Slide-out filters
+│   │   │   ├── TnMap.tsx           Leaflet map, interstate/state-route layers
 │   │   │   └── ModeSelector.tsx
-│   │   ├── modes/
-│   │   │   ├── DataExploration.tsx   Mode 1
-│   │   │   └── ComingSoon.tsx        Mode 2 / Mode 3 placeholder
-│   │   └── lib/              Shared types + a small fetch hook
+│   │   ├── modes/            One file per tab (Overview, DataExploration,
+│   │   │                     MannerOfCollision, CorridorAnalysis, FaultAnalysis)
+│   │   └── lib/              Crash table + filtering, shared types, fetch hook
 │   └── public/data/          Generated JSON/GeoJSON the app fetches at runtime
 ├── data/
-│   ├── prep_crash_data.py    Raw CSV -> app/public/data/*.json
+│   ├── prep_crash_data.py    Raw CSV -> app/public/data/*.json (joins fault outcomes if present)
+│   ├── fault/                Fault scoring: rules.json + score_fault.py (run before prep_crash_data.py)
 │   ├── prep_highways.py      Raw roads geojson -> app/public/data/tn_highways.geojson
 │   └── raw_geo/               Downloaded source data (gitignored, regenerate as needed)
 ├── .github/workflows/     Pages deploy workflow
@@ -64,19 +72,35 @@ npm run preview    # serve the production build locally
 
 ## Regenerating the data
 
-The JSON/GeoJSON files under `app/public/data/` are generated, not
-hand-written. To rebuild them:
+The files under `app/public/data/` are generated, not hand-written. Run these
+from the repo root, in this order:
 
 ```bash
-# 1. Crash data (needs raw_crash_data.csv at the repo root)
-python3 -m venv .venv && source .venv/bin/activate   # optional
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r data/requirements.txt
+
+# 1. Crashes -> crashes.json (one row per crash, stored column-wise) + summary.json
+#    Needs raw_crash_data.csv at the repo root.
 python3 data/prep_crash_data.py
 
-# 2. Highway placeholder (needs data/raw_geo/ne_10m_roads.geojson and
-#    data/raw_geo/us_states.geojson - see prep_highways.py for sources)
+# 2. County outlines + the grey veil outside Tennessee -> tn_counties.geojson, tn_mask.geojson
+#    Needs data/raw_geo/us_counties.json (download URL in the script's docstring).
+python3 data/prep_boundaries.py
+
+# 3. Corridor analysis -> corridors.json (each interstate crash placed at a mile
+#    position along its route). PRELIMINARY: uses the placeholder highway lines.
+python3 data/prep_corridors.py
+
+# Highway placeholder (only if rebuilding it; needs data/raw_geo/ne_10m_roads.geojson
+# and data/raw_geo/us_states.geojson, see prep_highways.py for sources)
 python3 data/prep_highways.py
 ```
+
+The app filters and aggregates `crashes.json` in the browser (`app/src/lib/crashes.ts`),
+so the map and every chart in every mode follow the same filters.
+
+The Overview page's team list comes from `app/public/data/team.json`. Put photos
+in `app/public/team/` and reference them there.
 
 ## Replacing the placeholder highway layer
 

@@ -1,6 +1,7 @@
 # Large raw source files - not committed, see data/README.md for how to regenerate
 raw_crash_data.csv
 data/raw_geo/
+data/fault/output/
 
 # Node / Vite
 app/node_modules
@@ -9,3 +10,5 @@ app/dist-ssr
 *.local
 
 .DS_Store
+.venv/
+.omc/

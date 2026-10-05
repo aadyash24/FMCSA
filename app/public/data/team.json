@@ -1,0 +1,8 @@
+{
+  "_readme": "Edit this list to set the team shown on the Overview page. Put photos in app/public/team/ and reference them as \"team/<file>.jpg\". Leave photo empty to show initials.",
+  "members": [
+    { "name": "Principal Investigator", "role": "Principal Investigator", "affiliation": "", "photo": "" },
+    { "name": "Project Supervisor", "role": "Research Supervisor", "affiliation": "", "photo": "" },
+    { "name": "Research Assistant", "role": "Undergraduate Research Assistant, dashboard and fault analysis", "affiliation": "", "photo": "" }
+  ]
+}

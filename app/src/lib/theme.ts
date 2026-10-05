@@ -1,9 +1,8 @@
 /**
  * Theme handling.
  *
- * Three user-facing states: light, dark, and system. "system" is the default and
- * follows the OS, so the dashboard matches whatever the rest of the machine is
- * doing until someone deliberately overrides it.
+ * Three user-facing states: light, dark, and system. Dark is the default, to
+ * match the UConn CT Crash dashboard this layout follows; "system" follows the OS.
  *
  * The chosen theme is written to <html data-theme>, which every stylesheet keys
  * off, and remembered in localStorage. Storage is wrapped because it throws in
@@ -21,7 +20,7 @@ export function readStoredTheme(): ThemeChoice {
   } catch {
     // private window or blocked storage, fall through to the default
   }
-  return "system";
+  return "dark";
 }
 
 export function storeTheme(choice: ThemeChoice) {

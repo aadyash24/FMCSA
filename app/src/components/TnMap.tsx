@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, LayersControl } from "react-leaflet";
-import type { Layer, PathOptions } from "leaflet";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MapContainer, TileLayer, GeoJSON, LayersControl, Pane, Polyline, useMap } from "react-leaflet";
+import L from "leaflet";
+import type { Layer, LeafletMouseEvent, PathOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useJson } from "../lib/useJson";
-import type { CrashPoints, YearRange } from "../lib/types";
+import type { CrashData } from "../lib/crashes";
+import { fmt } from "../lib/crashes";
 import type { ResolvedTheme } from "../lib/theme";
 import { severityColor, severityRank } from "../lib/severity";
 import CrashLayer from "./CrashLayer";
@@ -26,6 +28,7 @@ interface HighwayProps {
 }
 
 type HighwayFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Geometry, HighwayProps>;
+type CountyFeatureCollection = GeoJSON.FeatureCollection<GeoJSON.Geometry, { county: string }>;
 
 // Both road classes are the same blue; interstates read as primary purely by
 // being thicker and more opaque than the US / state routes underneath them.
@@ -35,12 +38,19 @@ const ROAD_BLUE: Record<ResolvedTheme, string> = {
   dark: "#6b95ff",
 };
 
-function stylesFor(theme: ResolvedTheme): Record<string, PathOptions> {
+// Corridor highlight: amber reads against both the blue network and the grey basemap.
+const HIGHLIGHT: Record<ResolvedTheme, string> = {
+  light: "#d97706",
+  dark: "#fbbf24",
+};
+
+function stylesFor(theme: ResolvedTheme, dimmed: boolean): Record<string, PathOptions> {
   const color = ROAD_BLUE[theme];
+  const k = dimmed ? 0.45 : 1;
   return {
-    Interstate: { color, weight: 3.6, opacity: 0.95 },
-    "US / State Route": { color, weight: 1.5, opacity: theme === "dark" ? 0.7 : 0.6 },
-    "Major Highway": { color, weight: 3, opacity: 0.9 },
+    Interstate: { color, weight: 3.6, opacity: 0.95 * k },
+    "US / State Route": { color, weight: 1.5, opacity: (theme === "dark" ? 0.7 : 0.6) * k },
+    "Major Highway": { color, weight: 3, opacity: 0.9 * k },
   };
 }
 
@@ -48,41 +58,77 @@ function stylesFor(theme: ResolvedTheme): Record<string, PathOptions> {
 // would be the nicer starting point, but it now watermarks every tile with
 // "API KEY REQUIRED" for unregistered use, so it is not usable here.
 //
-// Dark mode is therefore a CSS filter over the tile pane (see TnMap.css). The
-// filter is scoped to .leaflet-tile-pane so the crash canvas and the road
-// overlay, which live in overlayPane, keep their real colors.
+// The tiles are greyed with a CSS filter over the tile pane (see TnMap.css), and
+// dark mode inverts them there too. The filter is scoped to .leaflet-tile-pane
+// so the crash canvas and the road overlay keep their real colors.
 const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
-function onEachHighway(
-  feature: GeoJSON.Feature<GeoJSON.Geometry, HighwayProps>,
-  layer: Layer
-) {
-  const { route_label, route_type } = feature.properties;
-  layer.bindTooltip(`${route_label} (${route_type})`, { sticky: true });
+/**
+ * Zooms to whatever is in focus: a county, else a selected route, else the
+ * whole state. Runs only when the focus changes, so it never fights the user's
+ * own panning.
+ */
+function FocusView({ focusKey, bounds }: { focusKey: string; bounds: L.LatLngBoundsExpression }) {
+  const map = useMap();
+  const last = useRef(focusKey);
+  useEffect(() => {
+    if (last.current === focusKey) return;
+    last.current = focusKey;
+    map.flyToBounds(bounds, { padding: [24, 24], duration: 0.6, maxZoom: 10 });
+  }, [map, focusKey, bounds]);
+  return null;
 }
 
-function fmt(n: number) {
-  return n.toLocaleString("en-US");
-}
-
-interface TnMapProps {
-  yearRange: YearRange;
+export interface TnMapProps {
+  data: CrashData | null;
+  /** Crash rows to draw (already filtered). */
+  rows: number[];
   theme: ResolvedTheme;
+  /** Hide crash points and show only the highway network (corridor mode). */
+  networkOnly?: boolean;
+  severityOff: string[];
+  onToggleSeverity: (label: string) => void;
+  county: string | null;
+  onCountyChange: (county: string | null) => void;
+  /** Corridor mode: the selected route's line, drawn on top in amber. */
+  highlight?: { id: string; path: [number, number][] } | null;
+  onRouteClick?: (routeLabel: string) => void;
+  /** Replaces the severity legend and coloring, e.g. fault outcome on the At-Fault tab. */
+  colorBy?: {
+    title: string;
+    items: { key: string; color: string; off: boolean }[];
+    onToggle: (key: string) => void;
+    colorFor: (i: number) => string;
+    rankFor: (i: number) => number;
+    popupExtra: (i: number) => string;
+  };
 }
 
-export default function TnMap({ yearRange, theme }: TnMapProps) {
+export default function TnMap({
+  data,
+  rows,
+  theme,
+  networkOnly = false,
+  severityOff,
+  onToggleSeverity,
+  county,
+  onCountyChange,
+  highlight,
+  onRouteClick,
+  colorBy,
+}: TnMapProps) {
+  const dimRoads = !!highlight;
   const styleFor = useMemo(() => {
-    const table = stylesFor(theme);
+    const table = stylesFor(theme, dimRoads);
     return (feature?: GeoJSON.Feature<GeoJSON.Geometry, HighwayProps>): PathOptions => {
       const type = feature?.properties?.route_type ?? "US / State Route";
       return table[type] ?? table["US / State Route"];
     };
-  }, [theme]);
+  }, [theme, dimRoads]);
 
-  const { data: highways, loading, error } = useJson<HighwayFeatureCollection>(
-    "tn_highways.geojson"
-  );
-  const { data: crashes, loading: crashesLoading } = useJson<CrashPoints>("points.json");
+  const { data: highways, loading, error } = useJson<HighwayFeatureCollection>("tn_highways.geojson");
+  const { data: counties } = useJson<CountyFeatureCollection>("tn_counties.geojson");
+  const { data: mask } = useJson<GeoJSON.FeatureCollection>("tn_mask.geojson");
 
   const interstates = useMemo(() => {
     if (!highways) return null;
@@ -104,25 +150,13 @@ export default function TnMap({ yearRange, theme }: TnMapProps) {
 
   // Severity legend entries, most severe first so the list reads top-down.
   const severityKeys = useMemo(() => {
-    if (!crashes) return [];
-    return [...crashes.keys].sort((a, b) => severityRank(b) - severityRank(a));
-  }, [crashes]);
+    if (!data) return [];
+    return [...data.keys.severity].sort((a, b) => severityRank(b) - severityRank(a));
+  }, [data]);
 
   const [showCrashes, setShowCrashes] = useState(true);
-  const [disabled, setDisabled] = useState<Record<string, boolean>>({});
   const [noticeOpen, setNoticeOpen] = useState(true);
-  const [counts, setCounts] = useState({
-    rendered: 0,
-    inView: 0,
-    matching: 0,
-    thinned: false,
-  });
-
-  const enabled = useMemo(() => {
-    const out: Record<string, boolean> = {};
-    for (const k of severityKeys) out[k] = !disabled[k];
-    return out;
-  }, [severityKeys, disabled]);
+  const [counts, setCounts] = useState({ rendered: 0, inView: 0, matching: 0, thinned: false });
 
   const handleRenderedChange = useCallback(
     (next: { rendered: number; inView: number; matching: number; thinned: boolean }) => {
@@ -138,17 +172,63 @@ export default function TnMap({ yearRange, theme }: TnMapProps) {
     []
   );
 
-  const toggleSeverity = (key: string) =>
-    setDisabled((d) => ({ ...d, [key]: !d[key] }));
+  const onEachHighway = useCallback(
+    (feature: GeoJSON.Feature<GeoJSON.Geometry, HighwayProps>, layer: Layer) => {
+      const { route_label, route_type } = feature.properties;
+      layer.bindTooltip(`${route_label} (${route_type})`, { sticky: true });
+      if (onRouteClick && route_type === "Interstate") {
+        layer.on("click", () => onRouteClick(route_label));
+      }
+    },
+    [onRouteClick]
+  );
 
+  const countyStyle = useCallback(
+    (feature?: GeoJSON.Feature<GeoJSON.Geometry, { county: string }>): PathOptions => {
+      const selected = feature?.properties.county === county;
+      const line = theme === "dark" ? "#9aa4b4" : "#667085";
+      return selected
+        ? { color: ROAD_BLUE[theme], weight: 2.5, opacity: 1, fillColor: ROAD_BLUE[theme], fillOpacity: 0.08 }
+        : { color: line, weight: 0.6, opacity: 0.55, fillOpacity: 0 };
+    },
+    [county, theme]
+  );
+
+  const onEachCounty = useCallback(
+    (feature: GeoJSON.Feature<GeoJSON.Geometry, { county: string }>, layer: Layer) => {
+      const name = feature.properties.county;
+      layer.bindTooltip(`${name} County · click to focus`, { sticky: true });
+      layer.on("click", (e: LeafletMouseEvent) => {
+        e.originalEvent.stopPropagation();
+        onCountyChange(name === county ? null : name);
+      });
+    },
+    [county, onCountyChange]
+  );
+
+  const maskStyle: PathOptions = {
+    stroke: false,
+    fillColor: theme === "dark" ? "#05070a" : "#98a2b3",
+    fillOpacity: theme === "dark" ? 0.7 : 0.55,
+    interactive: false,
+  };
+
+  const focus = useMemo((): { key: string; bounds: L.LatLngBoundsExpression } => {
+    if (county && counties) {
+      const f = counties.features.find((c) => c.properties.county === county);
+      if (f) return { key: `county:${county}`, bounds: L.geoJSON(f).getBounds() };
+    }
+    if (highlight) return { key: `route:${highlight.id}`, bounds: L.latLngBounds(highlight.path) };
+    return { key: "state", bounds: TN_BOUNDS };
+  }, [county, counties, highlight]);
 
   return (
     <div className="tn-map-wrap">
       {noticeOpen && (
         <div className="tn-map-notice">
           <span>
-            Highway lines are a placeholder (public roads data) until the real TDOT Road
-            Geometrics shapefile is loaded.
+            Highway lines are a placeholder (public roads data) until the real TDOT Road Geometrics shapefile is
+            loaded.
           </span>
           <button
             type="button"
@@ -175,28 +255,66 @@ export default function TnMap({ yearRange, theme }: TnMapProps) {
           url={TILE_URL}
         />
 
+        {/* Everything outside Tennessee sits under a grey veil. */}
+        <Pane name="mask" style={{ zIndex: 350 }}>
+          {mask && <GeoJSON key={`mask-${theme}`} data={mask} style={maskStyle} />}
+        </Pane>
+
         <LayersControl position="topright">
+          {counties && (
+            <LayersControl.Overlay checked name="Counties">
+              <GeoJSON
+                key={`c-${theme}-${county ?? "all"}`}
+                data={counties}
+                style={countyStyle}
+                onEachFeature={onEachCounty}
+              />
+            </LayersControl.Overlay>
+          )}
 
           {stateRoutes && (
             <LayersControl.Overlay checked name="US / State Routes">
-              <GeoJSON key={`sr-${theme}`} data={stateRoutes} style={styleFor} onEachFeature={onEachHighway} />
+              <GeoJSON key={`sr-${theme}-${dimRoads}`} data={stateRoutes} style={styleFor} onEachFeature={onEachHighway} />
             </LayersControl.Overlay>
           )}
 
           {interstates && (
             <LayersControl.Overlay checked name="Interstates">
-              <GeoJSON key={`i-${theme}`} data={interstates} style={styleFor} onEachFeature={onEachHighway} />
+              <GeoJSON
+                key={`i-${theme}-${dimRoads}-${!!onRouteClick}`}
+                data={interstates}
+                style={styleFor}
+                onEachFeature={onEachHighway}
+              />
             </LayersControl.Overlay>
           )}
         </LayersControl>
 
-        {crashes && showCrashes && (
+        <FocusView focusKey={focus.key} bounds={focus.bounds} />
+
+        {highlight && (
+          <>
+            <Polyline
+              key={`halo-${highlight.id}-${theme}`}
+              positions={highlight.path}
+              pathOptions={{ color: theme === "dark" ? "#0b0d12" : "#ffffff", weight: 10, opacity: 0.9 }}
+            />
+            <Polyline
+              key={`hl-${highlight.id}-${theme}`}
+              positions={highlight.path}
+              pathOptions={{ color: HIGHLIGHT[theme], weight: 6, opacity: 1 }}
+            />
+          </>
+        )}
+
+        {data && showCrashes && (!networkOnly || highlight) && (
           <CrashLayer
-            points={crashes.points}
-            keys={crashes.keys}
-            yearRange={yearRange}
-            enabled={enabled}
+            data={data}
+            rows={rows}
             theme={theme}
+            colorFor={colorBy?.colorFor}
+            rankFor={colorBy?.rankFor}
+            popupExtra={colorBy?.popupExtra}
             onRenderedChange={handleRenderedChange}
           />
         )}
@@ -204,40 +322,56 @@ export default function TnMap({ yearRange, theme }: TnMapProps) {
 
       <div className="tn-map-legend">
         <label className="tn-map-legend__head">
-          <input
-            type="checkbox"
-            checked={showCrashes}
-            onChange={(e) => setShowCrashes(e.target.checked)}
-          />
-          <span>Crash points</span>
+          <input type="checkbox" checked={showCrashes} onChange={(e) => setShowCrashes(e.target.checked)} />
+          <span>{colorBy ? colorBy.title : networkOnly ? "Crashes on the selected route" : "Crash points"}</span>
         </label>
 
         {showCrashes && (
           <>
             <ul className="tn-map-legend__list">
-              {severityKeys.map((key) => (
-                <li key={key}>
-                  <label className={disabled[key] ? "is-off" : undefined}>
-                    <input
-                      type="checkbox"
-                      checked={!disabled[key]}
-                      onChange={() => toggleSeverity(key)}
-                    />
-                    <span className="swatch" style={{ background: severityColor(key, theme) }} />
-                    <span className="swatch-label">{key}</span>
-                  </label>
-                </li>
-              ))}
+              {colorBy
+                ? colorBy.items.map((it) => (
+                    <li key={it.key}>
+                      <label className={it.off ? "is-off" : undefined}>
+                        <input type="checkbox" checked={!it.off} onChange={() => colorBy.onToggle(it.key)} />
+                        <span className="swatch" style={{ background: it.color }} />
+                        <span className="swatch-label">{it.key}</span>
+                      </label>
+                    </li>
+                  ))
+                : severityKeys.map((key) => {
+                const off = severityOff.includes(key);
+                return (
+                  <li key={key}>
+                    <label className={off ? "is-off" : undefined}>
+                      <input type="checkbox" checked={!off} onChange={() => onToggleSeverity(key)} />
+                      <span className="swatch" style={{ background: severityColor(key, theme) }} />
+                      <span className="swatch-label">{key}</span>
+                    </label>
+                  </li>
+                );
+              })}
             </ul>
             <p className="tn-map-legend__count">
-              {crashesLoading
+              {!data
                 ? "Loading crashes…"
-                : counts.thinned
-                  ? `Showing ${fmt(counts.rendered)} of ${fmt(counts.inView)} crashes in view. Zoom in to see them all. ${fmt(counts.matching)} match the filters statewide.`
-                  : `Showing all ${fmt(counts.rendered)} crashes in view. ${fmt(counts.matching)} match the filters statewide.`}
+                : networkOnly && !highlight
+                  ? "Pick an interstate to see its crashes."
+                  : counts.thinned
+                    ? `Showing ${fmt(counts.rendered)} of ${fmt(counts.inView)} crashes in view. Zoom in to see them all. ${fmt(counts.matching)} match the filters.`
+                    : `Showing all ${fmt(counts.rendered)} crashes in view. ${fmt(counts.matching)} match the filters.`}
             </p>
           </>
         )}
+
+        <div className="tn-map-legend__county">
+          <span>{county ? `Focused: ${county} County` : "Click a county to focus"}</span>
+          {county && (
+            <button type="button" onClick={() => onCountyChange(null)}>
+              Clear
+            </button>
+          )}
+        </div>
 
         <div className="tn-map-legend__roads">
           <span className="road-key road-key--interstate" /> Interstate
