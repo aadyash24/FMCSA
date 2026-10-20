@@ -130,8 +130,9 @@ interface FactorsProps extends ModeProps {
 export default function ContributingFactors({ data, rows, filters, theme, renderMap, summary, preview, meta }: FactorsProps) {
   const { axis, grid, tip, text } = chartTheme(theme);
   const COLORS = partyColors(theme);
-  const [off, setOff] = useState<string[]>([]);
   const live = !!(data.cols.party && data.keys.party && data.cols.behCmv && data.cols.behOther);
+  // Crashes with no driver records say nothing about factors, so they start hidden on the map.
+  const [off, setOff] = useState<string[]>(() => (live ? ["No driver record"] : []));
 
   const factors = useMemo((): Factors | null => {
     if (live) {
@@ -250,17 +251,19 @@ export default function ContributingFactors({ data, rows, filters, theme, render
   if (!factors) return <div className="app-loading">Loading contributing factors…</div>;
 
   const P = factors.parties;
-  const total = PARTIES.reduce((a, p) => a + (P[p] ?? 0), 0);
+  // Shares are of crashes with driver records: a crash without them can't show whose factors were coded.
+  const allCrashes = PARTIES.reduce((a, p) => a + (P[p] ?? 0), 0);
+  const total = allCrashes - (P["No driver record"] ?? 0);
   const cmvContrib = (P["CMV driver only"] ?? 0) + (P["Both drivers"] ?? 0);
   const single = (P["CMV driver only"] ?? 0) + (P["Other driver only"] ?? 0);
-  const unknown = (P["No factor coded"] ?? 0) + (P["No driver record"] ?? 0);
+  const unknown = P["No factor coded"] ?? 0;
   const scope = live ? when : "all years · not filtered";
 
   // Step 1: behaviors, most common first.
   const order = factors.behaviors.map((_, b) => b).sort((a, b) => factors.all[b] - factors.all[a]);
   const step1 = order.map((b) => ({ behavior: factors.behaviors[b], share: factors.all[b] }));
   // Step 2: parties.
-  const step2 = PARTIES.map((p) => ({ party: p, count: P[p] ?? 0, share: share(P[p] ?? 0, total) }));
+  const step2 = PARTIES.filter((p) => p !== "No driver record").map((p) => ({ party: p, count: P[p] ?? 0, share: share(P[p] ?? 0, total) }));
   // Step 3: the three groups side by side, ordered by the overall ranking.
   const step3 = order.map((b) => ({
     behavior: factors.behaviors[b],
@@ -282,14 +285,19 @@ export default function ContributingFactors({ data, rows, filters, theme, render
 
   const kpis = (
     <>
-      <Indicator size="lg" label="CMV crashes" value={fmt(total)} sub={scope} />
+      <Indicator
+        size="lg"
+        label="Crashes with driver records"
+        value={fmt(total)}
+        sub={`${pct(total, allCrashes)} of ${fmt(allCrashes)} CMV crashes · ${scope}`}
+      />
       <div className="kpi-pair">
         <Indicator label="CMV driver had a factor" value={pct(cmvContrib, total)} color={COLORS["CMV driver only"]} sub={fmt(cmvContrib)} />
         <Indicator label="Only the other driver" value={pct(P["Other driver only"] ?? 0, total)} color={COLORS["Other driver only"]} sub={fmt(P["Other driver only"] ?? 0)} />
       </div>
       <div className="kpi-pair">
         <Indicator label="Both drivers" value={pct(P["Both drivers"] ?? 0, total)} color={COLORS["Both drivers"]} sub={fmt(P["Both drivers"] ?? 0)} />
-        <Indicator label="Unknown" value={pct(unknown, total)} color={COLORS["No factor coded"]} sub="nothing coded / no record" />
+        <Indicator label="Nothing coded" value={pct(unknown, total)} color={COLORS["No factor coded"]} sub={fmt(unknown)} />
       </div>
       <Callout>
         When only one driver had a factor coded, it was the <strong>other (non-CMV) driver</strong> in{" "}
@@ -337,7 +345,11 @@ export default function ContributingFactors({ data, rows, filters, theme, render
           </Panel>
           <Panel
             title={<><span className="step-n">2</span> Whose factors were coded</>}
-            note={live ? `${scope} · CMV driver vs. the other driver(s) in the crash` : preview?.bothNote}
+            note={
+              live
+                ? `${scope} · share of the ${fmt(total)} crashes with driver records; ${fmt(P["No driver record"] ?? 0)} without are left out`
+                : preview?.bothNote
+            }
           >
             <div className="chart-fill">
               <ResponsiveContainer width="100%" height="100%">
