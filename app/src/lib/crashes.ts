@@ -33,7 +33,10 @@ export interface CrashData {
   n: number;
   /** Latest crash date in the extract, YYYY-MM-DD. */
   lastDate: string;
-  keys: Record<CategoryField, string[]>;
+  keys: Record<CategoryField, string[]> & {
+    /** Contributing party per crash; present once data/fault/contributing_factors.py has been run. */
+    party?: string[];
+  };
   cols: {
     lat: (number | null)[];
     lon: (number | null)[];
@@ -48,6 +51,10 @@ export interface CrashData {
     dow: number[];
     /** 1-12, -1 unknown */
     month: number[];
+    /** Present with keys.party: index into keys.party, and behavior-group bitmasks per driver type. */
+    party?: number[];
+    behCmv?: number[];
+    behOther?: number[];
   } & Record<CategoryField, number[]>;
 }
 

@@ -112,6 +112,7 @@ export default function CrashLayer({ data, rows, theme, colorFor, rankFor, popup
         renderer,
         radius,
         stroke: false,
+        bubblingMouseEvents: false,
         fillColor: colorFor ? colorFor(i) : severityColor(label, theme),
         fillOpacity: theme === "dark" ? 0.8 : 0.72,
       });

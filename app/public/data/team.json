@@ -1,8 +1,11 @@
 {
-  "_readme": "Edit this list to set the team shown on the Overview page. Put photos in app/public/team/ and reference them as \"team/<file>.jpg\". Leave photo empty to show initials.",
+  "_readme": "Edit this list to set the team shown on the Overview page. Put photos in app/public/team/ and reference them as \"team/<file>.jpg\". Leave photo empty to show initials. Replace the faculty placeholders with real names, titles and photos.",
   "members": [
-    { "name": "Principal Investigator", "role": "Principal Investigator", "affiliation": "", "photo": "" },
-    { "name": "Project Supervisor", "role": "Research Supervisor", "affiliation": "", "photo": "" },
-    { "name": "Research Assistant", "role": "Undergraduate Research Assistant, dashboard and fault analysis", "affiliation": "", "photo": "" }
+    { "name": "Faculty Member 1", "role": "Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
+    { "name": "Faculty Member 2", "role": "Co-Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
+    { "name": "Faculty Member 3", "role": "Co-Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
+    { "name": "Faculty Member 4", "role": "Co-Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
+    { "name": "Aadya Sharma", "role": "Research Assistant, dashboard and agentic analysis", "affiliation": "University of Tennessee, Knoxville", "photo": "" },
+    { "name": "Research Assistant", "role": "Research Assistant (to be announced)", "affiliation": "", "photo": "" }
   ]
 }

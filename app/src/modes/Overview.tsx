@@ -1,4 +1,7 @@
 import { useMemo, useState } from "react";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { chartTheme } from "../lib/chartTheme";
+import type { ResolvedTheme } from "../lib/theme";
 import { useJson } from "../lib/useJson";
 import type { CrashData } from "../lib/crashes";
 import { fmt, totals } from "../lib/crashes";
@@ -13,7 +16,26 @@ interface TeamMember {
   photo?: string;
 }
 
-const SECTIONS: { mode: DashboardMode; title: string; body: string; soon?: boolean }[] = [
+/** Output of data/prep_coverage.py. Null counts = not computed yet. */
+interface Coverage {
+  source: string;
+  complete: boolean;
+  crashes: number;
+  vehicles: number | null;
+  people: number | null;
+  crashesWithVehicles: number | null;
+  crashesWithPeople: number | null;
+  byYear: {
+    year: string;
+    crashes: number;
+    crashesWithVehicles: number | null;
+    vehicles: number | null;
+    crashesWithPeople: number | null;
+    people: number | null;
+  }[];
+}
+
+const SECTIONS: { mode: DashboardMode; title: string; body: string }[] = [
   {
     mode: "explore",
     title: "Exploratory Analysis",
@@ -27,13 +49,12 @@ const SECTIONS: { mode: DashboardMode; title: string; body: string; soon?: boole
   {
     mode: "corridor",
     title: "Corridor Analysis",
-    body: "Choose an interstate and follow its crashes mile by mile, end to end, with the busiest sections and metro areas marked.",
+    body: "Choose an interstate, US route or state route and follow its crashes mile by mile, end to end, with the busiest sections and metro areas marked.",
   },
   {
-    mode: "fault",
-    title: "At-Fault Analysis",
-    body: "Who was at fault in two-vehicle truck crashes, by severity. In planning.",
-    soon: true,
+    mode: "factors",
+    title: "Contributing Factors",
+    body: "Which driver behaviors police coded (speeding, distraction, impairment), whether for the CMV driver or the other driver, and how the ranking shifts between them.",
   },
 ];
 
@@ -65,8 +86,20 @@ function Avatar({ member }: { member: TeamMember }) {
   );
 }
 
-export default function Overview({ data, onOpen }: { data: CrashData | null; onOpen: (m: DashboardMode) => void }) {
+export default function Overview({
+  data,
+  onOpen,
+  tabs,
+  theme,
+}: {
+  data: CrashData | null;
+  onOpen: (m: DashboardMode) => void;
+  /** Visible tabs; the rest are listed as in development (presentation mode). */
+  tabs: DashboardMode[];
+  theme: ResolvedTheme;
+}) {
   const { data: team } = useJson<{ members: TeamMember[] }>("team.json");
+  const { data: coverage } = useJson<Coverage>("coverage.json");
 
   const stats = useMemo(() => {
     if (!data) return null;
@@ -90,7 +123,7 @@ export default function Overview({ data, onOpen }: { data: CrashData | null; onO
         <p className="overview-hero__lead">
           This dashboard brings together a decade of police-reported crashes involving commercial motor vehicles
           (trucks and buses) in Tennessee. Use it to see how many crashes happen, how severe they are, how vehicles
-          collide, and which stretches of interstate see the most crashes.
+          collide, which driver behaviors are coded, and which stretches of road see the most crashes.
         </p>
         {stats && (
           <div className="overview-stats">
@@ -119,16 +152,24 @@ export default function Overview({ data, onOpen }: { data: CrashData | null; onO
       <section>
         <h3 className="overview-h">What's inside</h3>
         <div className="overview-sections">
-          {SECTIONS.map((s) => (
-            <button key={s.mode} type="button" className="overview-card" onClick={() => onOpen(s.mode)}>
-              <span className="overview-card__title">
-                {s.title}
-                {s.soon && <span className="mode-tab__badge">soon</span>}
-              </span>
-              <span className="overview-card__body">{s.body}</span>
-              <span className="overview-card__go">Open →</span>
-            </button>
-          ))}
+          {SECTIONS.map((s) =>
+            tabs.includes(s.mode) ? (
+              <button key={s.mode} type="button" className="overview-card" onClick={() => onOpen(s.mode)}>
+                <span className="overview-card__title">{s.title}</span>
+                <span className="overview-card__body">{s.body}</span>
+                <span className="overview-card__go">Open →</span>
+              </button>
+            ) : (
+              <div key={s.mode} className="overview-card is-wip">
+                <span className="overview-card__title">
+                  {s.title}
+                  <span className="mode-tab__badge">in development</span>
+                </span>
+                <span className="overview-card__body">{s.body}</span>
+                <span className="overview-card__go">Being fine-tuned, more charts by the next meeting</span>
+              </div>
+            )
+          )}
         </div>
       </section>
 
@@ -146,6 +187,8 @@ export default function Overview({ data, onOpen }: { data: CrashData | null; onO
         </div>
       </section>
 
+      {coverage && <CoverageSection coverage={coverage} theme={theme} />}
+
       <section className="overview-data">
         <h3 className="overview-h">About the data</h3>
         <ul>
@@ -158,5 +201,57 @@ export default function Overview({ data, onOpen }: { data: CrashData | null; onO
         </ul>
       </section>
     </div>
+  );
+}
+
+const recordLabel = (series: string) => `Crashes with ${series === "People" ? "person" : "vehicle"} records`;
+
+function CoverageSection({ coverage, theme }: { coverage: Coverage; theme: ResolvedTheme }) {
+  const { axis, grid, tip } = chartTheme(theme);
+  const share = (n: number | null, d: number) => (n === null || !d ? null : +((100 * n) / d).toFixed(1));
+  const rows = coverage.byYear.map((r) => ({
+    year: r.year,
+    Vehicles: share(r.crashesWithVehicles, r.crashes),
+    People: share(r.crashesWithPeople, r.crashes),
+  }));
+  const hasPeople = rows.some((r) => r.People !== null);
+  const fullFrom = coverage.byYear.find((_, i, a) => a.slice(i).every((x) => x.crashesWithVehicles === x.crashes))?.year;
+  const tile = (value: number | null, label: string) => (
+    <div>
+      <strong>{value === null ? "pending" : fmt(value)}</strong>
+      <span>{label}</span>
+    </div>
+  );
+  return (
+    <section className="overview-coverage">
+      <h3 className="overview-h">What the data covers</h3>
+      <p className="overview-coverage__lead">
+        Not every crash report comes with its vehicle and person records, so some analyses only reach certain years.
+        {fullFrom && <> Vehicle records cover every crash from {fullFrom} on.</>}
+      </p>
+      <div className="overview-stats overview-stats--compact">
+        {tile(coverage.crashes, "CMV crashes")}
+        {tile(coverage.vehicles, "vehicles on record")}
+        {tile(coverage.people, "people on record")}
+      </div>
+      <div className="overview-coverage__chart">
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={rows} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
+            <XAxis dataKey="year" stroke={axis} fontSize={11} />
+            <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} unit="%" stroke={axis} fontSize={11} />
+            <Tooltip contentStyle={tip} formatter={(v, n) => [v === null ? "pending" : `${v}%`, recordLabel(String(n))]} />
+            <Legend wrapperStyle={{ fontSize: 11 }} formatter={(n) => recordLabel(String(n))} />
+            <Bar dataKey="Vehicles" fill={theme === "dark" ? "#6b95ff" : "#1d4ed8"} radius={[3, 3, 0, 0]} />
+            {hasPeople && <Bar dataKey="People" fill={theme === "dark" ? "#f5a55f" : "#d97706"} radius={[3, 3, 0, 0]} />}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      {!coverage.complete && (
+        <p className="overview-coverage__note">
+          Vehicle and person counts are pending: run <code>data/prep_coverage.py</code> on the TITAN unit and person tables.
+        </p>
+      )}
+    </section>
   );
 }

@@ -12,3 +12,4 @@ app/dist-ssr
 .DS_Store
 .venv/
 .omc/
+__pycache__/

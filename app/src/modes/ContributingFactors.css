@@ -1,0 +1,83 @@
+.step-n {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+
+/* Panels whose body holds a note above a chart: the chart takes the rest. */
+.dash-panel__body:has(> .factor-preview) {
+  display: flex;
+  flex-direction: column;
+}
+.dash-panel__body:has(> .factor-preview) > .chart-fill {
+  flex: 1;
+  height: auto;
+}
+
+.factor-preview {
+  margin: 0 0 6px;
+  padding: 5px 8px;
+  border-left: 3px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.factor-compare {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+  gap: 14px;
+  height: 100%;
+}
+
+.factor-ranks {
+  overflow-y: auto;
+}
+
+.factor-ranks table {
+  font-size: 11.5px;
+}
+
+.factor-ranks td:first-child {
+  white-space: nowrap;
+}
+
+.rank-move {
+  margin-left: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.rank-move.is-up {
+  color: var(--danger, #e5484d);
+}
+.rank-move.is-down {
+  color: var(--text-subtle);
+}
+
+.factor-scorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.factor-scorer > .chart-fill {
+  flex: 1;
+  height: auto;
+}
+
+@media (max-width: 1200px) {
+  .factor-compare {
+    grid-template-columns: 1fr;
+  }
+  .factor-compare > .chart-fill {
+    height: 300px;
+  }
+}

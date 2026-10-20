@@ -3,12 +3,14 @@ import ModeSelector from "./components/ModeSelector";
 import ThemeToggle from "./components/ThemeToggle";
 import TnMap from "./components/TnMap";
 import FilterPanel from "./components/FilterPanel";
+import YearRangeControl from "./components/YearRange";
 import Overview from "./modes/Overview";
 import DataExploration from "./modes/DataExploration";
 import MannerOfCollision from "./modes/MannerOfCollision";
 import CorridorAnalysis from "./modes/CorridorAnalysis";
-import FaultAnalysis from "./modes/FaultAnalysis";
-import type { FaultSummary } from "./modes/FaultAnalysis";
+import ContributingFactors from "./modes/ContributingFactors";
+import type { FactorsMeta, FactorsPreview, FaultSummary } from "./modes/ContributingFactors";
+import { visibleTabs } from "./config";
 import { useJson } from "./lib/useJson";
 import { useTheme } from "./lib/useTheme";
 import { activeFilterCount, defaultFilters, filterCrashes } from "./lib/crashes";
@@ -18,11 +20,12 @@ import type { RenderMap } from "./lib/modeProps";
 import type { DashboardMode, YearRange } from "./lib/types";
 import "./App.css";
 
-const TABS: DashboardMode[] = ["overview", "explore", "manner", "corridor", "fault"];
+const TABS = visibleTabs();
 
-/** ?tab=fault opens a tab directly, so a view can be linked (like the UConn dashboard's &page=). */
+/** ?tab=factors opens a tab directly, so a view can be linked (like the UConn dashboard's &page=). */
 function tabFromUrl(): DashboardMode {
-  const t = new URLSearchParams(window.location.search).get("tab");
+  let t = new URLSearchParams(window.location.search).get("tab");
+  if (t === "fault") t = "factors"; // old links to the At-Fault tab
   return TABS.includes(t as DashboardMode) ? (t as DashboardMode) : "overview";
 }
 
@@ -41,6 +44,8 @@ function App() {
   const { data, error: dataError } = useJson<CrashData>("crashes.json");
   const { data: corridors } = useJson<CorridorData>("corridors.json");
   const { data: faultSummary } = useJson<FaultSummary>("fault_summary.json");
+  const { data: factorsPreview } = useJson<FactorsPreview>("factors_preview.json");
+  const { data: factorsMeta } = useJson<FactorsMeta>("factors_meta.json");
 
   const years = useMemo(() => {
     if (!data) return [] as string[];
@@ -95,8 +100,16 @@ function App() {
             TN CRASH <span>– Crashes involving commercial motor vehicles</span>
           </h1>
         </div>
-        <ModeSelector mode={mode} onChange={setMode} />
+        <ModeSelector mode={mode} onChange={setMode} tabs={TABS} />
         <div className="app-header__actions">
+          {mode !== "overview" && years.length > 0 && (
+            <YearRangeControl
+              years={years}
+              value={filters.yearRange}
+              fullRange={fullRange}
+              onChange={(yearRange) => setFilters({ ...filters, yearRange })}
+            />
+          )}
           {mode !== "overview" && (
             <button
               type="button"
@@ -131,13 +144,15 @@ function App() {
 
       {mode === "overview" && (
         <main className="app-page">
-          <Overview data={data} onOpen={setMode} />
+          <Overview data={data} onOpen={setMode} tabs={TABS} theme={resolved} />
         </main>
       )}
       {data && mode === "explore" && <DataExploration {...common} />}
       {data && mode === "manner" && <MannerOfCollision {...common} />}
       {data && mode === "corridor" && <CorridorAnalysis {...common} corridors={corridors} />}
-      {data && mode === "fault" && <FaultAnalysis {...common} summary={faultSummary} />}
+      {data && mode === "factors" && (
+        <ContributingFactors {...common} summary={faultSummary} preview={factorsPreview} meta={factorsMeta} />
+      )}
 
       {mode === "overview" && (
         <footer className="app-footer">

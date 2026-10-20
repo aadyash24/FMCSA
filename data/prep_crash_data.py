@@ -11,6 +11,8 @@ Optional inputs, used when present (the columns fall back to "Not recorded"):
   UNIT_CSV          Unit.csv from the supervisor's 10/5 extract, for road surface
   AGENCY_LOOKUP     vwLookup_Agency.txt from the TITAN export, for agency names
   FAULT_CSV         data/fault/output/fault_crashes.csv (run data/fault/score_fault.py first)
+  FACTOR_CSV        data/fault/output/factor_crashes.csv (run data/fault/contributing_factors.py
+                    first); adds party, behCmv and behOther for the Contributing Factors tab
 
 Run from the repo root:
     python3 data/prep_crash_data.py
@@ -26,6 +28,7 @@ OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "public", "data")
 UNIT_CSV = os.path.expanduser("~/Desktop/FMCSA Related Crashes/Unit.csv")
 AGENCY_LOOKUP = os.path.expanduser("~/Desktop/Clean Up/FMCSA/TITAN Crash Database (Processed)/vwLookup_Agency.txt")
 FAULT_CSV = os.path.join(os.path.dirname(__file__), "fault", "output", "fault_crashes.csv")
+FACTOR_CSV = os.path.join(os.path.dirname(__file__), "fault", "output", "factor_crashes.csv")
 
 # --- Code dictionaries (TITAN data dictionary) --------------------------------
 
@@ -185,6 +188,14 @@ def county_name(code):
     return COUNTY_BY_CODE.get(code, f"County {code}" if code and code != "Na" else "Unknown")
 
 
+def load_factors():
+    """{crash id: (party, CMV-driver behavior bits, other-driver behavior bits)}, or None when not generated."""
+    if not os.path.exists(FACTOR_CSV):
+        return None
+    with open(FACTOR_CSV, newline="") as f:
+        return {r["crash_id"]: (r["party"], int(r["beh_cmv"]), int(r["beh_other"])) for r in csv.DictReader(f)}
+
+
 def label(mapping, code):
     return mapping.get(code, "Unknown" if code in ("", "Na", None) else f"Other ({code})")
 
@@ -243,6 +254,11 @@ def main():
     surface = load_surface()
     agencies = load_agencies()
     fault = load_fault()
+    factors = load_factors()
+    if factors is not None:
+        fields.append("party")
+        coders["party"] = Coder()
+        cols.update(party=[], behCmv=[], behOther=[])
 
     total_fatalities = 0
     total_injuries = 0
@@ -315,6 +331,11 @@ def main():
             full, geo = fault.get(key, ("Out of scope", "Out of scope"))
             cols["faultFull"].append(coders["faultFull"](full))
             cols["faultGeo"].append(coders["faultGeo"](geo))
+            if factors is not None:
+                party, beh_cmv, beh_other = factors.get(key, ("No driver record", 0, 0))
+                cols["party"].append(coders["party"](party))
+                cols["behCmv"].append(beh_cmv)
+                cols["behOther"].append(beh_other)
 
     total = len(cols["year"])
     summary = {
