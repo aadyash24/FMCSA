@@ -1,99 +1,99 @@
 {
-  "source": "Seeded: crashes from crashes.json, vehicle coverage from the fault scorer's funnel (10/5 extract). Run data/prep_coverage.py for vehicle and person counts.",
-  "complete": false,
+  "source": "FMCSA Related Crashes (unit and person tables)",
+  "complete": true,
   "crashes": 45650,
-  "vehicles": null,
-  "people": null,
+  "vehicles": 92381,
+  "people": 7531,
   "crashesWithVehicles": 40496,
-  "crashesWithPeople": null,
+  "crashesWithPeople": 4806,
   "byYear": [
     {
       "year": "2015",
       "crashes": 3427,
       "crashesWithVehicles": 55,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 133,
+      "crashesWithPeople": 0,
+      "people": 0
     },
     {
       "year": "2016",
       "crashes": 3500,
       "crashesWithVehicles": 1718,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 4018,
+      "crashesWithPeople": 0,
+      "people": 0
     },
     {
       "year": "2017",
       "crashes": 3306,
       "crashesWithVehicles": 3306,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 7585,
+      "crashesWithPeople": 0,
+      "people": 0
     },
     {
       "year": "2018",
       "crashes": 3486,
       "crashesWithVehicles": 3486,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 7912,
+      "crashesWithPeople": 0,
+      "people": 0
     },
     {
       "year": "2019",
       "crashes": 4329,
       "crashesWithVehicles": 4329,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 9828,
+      "crashesWithPeople": 0,
+      "people": 0
     },
     {
       "year": "2020",
       "crashes": 4294,
       "crashesWithVehicles": 4294,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 9728,
+      "crashesWithPeople": 3,
+      "people": 6
     },
     {
       "year": "2021",
       "crashes": 5531,
       "crashesWithVehicles": 5531,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 12808,
+      "crashesWithPeople": 6,
+      "people": 15
     },
     {
       "year": "2022",
       "crashes": 6048,
       "crashesWithVehicles": 6048,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 13769,
+      "crashesWithPeople": 25,
+      "people": 38
     },
     {
       "year": "2023",
       "crashes": 5500,
       "crashesWithVehicles": 5500,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 12521,
+      "crashesWithPeople": 829,
+      "people": 1333
     },
     {
       "year": "2024",
       "crashes": 5023,
       "crashesWithVehicles": 5023,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 11359,
+      "crashesWithPeople": 3183,
+      "people": 4926
     },
     {
       "year": "2025",
       "crashes": 1206,
       "crashesWithVehicles": 1206,
-      "vehicles": null,
-      "crashesWithPeople": null,
-      "people": null
+      "vehicles": 2720,
+      "crashesWithPeople": 760,
+      "people": 1213
     }
   ]
 }

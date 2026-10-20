@@ -1,0 +1,143 @@
+{
+  "source": "FMCSA Related Crashes",
+  "personDetail": true,
+  "parties": [
+    "CMV driver only",
+    "Other driver only",
+    "Both drivers",
+    "No factor coded",
+    "No driver record"
+  ],
+  "behaviors": [
+    {
+      "label": "Speeding",
+      "codes": {
+        "a": [
+          "28",
+          "29"
+        ]
+      }
+    },
+    {
+      "label": "Distraction / inattention",
+      "codes": {
+        "a": [
+          "01",
+          "02",
+          "09",
+          "38",
+          "39",
+          "40"
+        ]
+      }
+    },
+    {
+      "label": "Impairment (alcohol / drugs)",
+      "codes": {
+        "v": [
+          "01"
+        ],
+        "alc": [
+          "01"
+        ],
+        "drug": [
+          "01"
+        ]
+      }
+    },
+    {
+      "label": "Following too closely",
+      "codes": {
+        "a": [
+          "12"
+        ]
+      }
+    },
+    {
+      "label": "Lane or position error",
+      "codes": {
+        "a": [
+          "03",
+          "04",
+          "06",
+          "14",
+          "15",
+          "22"
+        ]
+      }
+    },
+    {
+      "label": "Failure to yield / obey controls",
+      "codes": {
+        "a": [
+          "07",
+          "08",
+          "10"
+        ]
+      }
+    },
+    {
+      "label": "Reckless / careless driving",
+      "codes": {
+        "a": [
+          "24",
+          "25",
+          "26",
+          "27"
+        ],
+        "v": [
+          "02"
+        ]
+      }
+    },
+    {
+      "label": "Improper turn or backing",
+      "codes": {
+        "a": [
+          "13",
+          "16"
+        ]
+      }
+    },
+    {
+      "label": "Other coded action",
+      "codes": {
+        "a": [
+          "05",
+          "11",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "30",
+          "31"
+        ]
+      }
+    },
+    {
+      "label": "Cited, other violation",
+      "codes": {
+        "v": [
+          "03",
+          "04"
+        ]
+      }
+    }
+  ],
+  "crashesByParty": {
+    "CMV driver only": 143,
+    "Other driver only": 333,
+    "Both drivers": 0,
+    "No factor coded": 2554,
+    "No driver record": 42620
+  },
+  "driverRecordsByYear": {
+    "2020": 2,
+    "2021": 2,
+    "2022": 16,
+    "2023": 537,
+    "2024": 1985,
+    "2025": 488
+  }
+}
