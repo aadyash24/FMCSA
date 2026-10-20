@@ -4,15 +4,23 @@ A dashboard for exploring commercial motor vehicle (CMV) crashes on Tennessee
 interstates and state routes. Built as a static site (Vite + React + Leaflet)
 deployed to GitHub Pages, with R/Python used offline for data prep.
 
-Sections: Overview (project and team), Exploratory Analysis, Manner of
-Collision, Corridor Analysis (preliminary, on placeholder highway lines), and
-At-Fault Analysis (preliminary rule weights). The layout follows the UConn CT
+Sections: Overview (project, team, data coverage), Exploratory Analysis,
+Manner of Collision, Corridor Analysis (interstates, US routes and state routes;
+preliminary, on placeholder highway lines), and Contributing Factors (which
+driver behaviors were coded, for whom; replaces the old At-Fault tab). The layout follows the UConn CT
 Crash FMCSA dashboard: count tiles and gauges on the left, map in the centre,
 charts to the right and below, dark theme by default. A slide-out Filters panel
 (year, county, FMCSA reportable criteria, severity, vehicles, manner, route
 class, road surface, weather, light, work zone, intersection, school bus,
-agency) applies to the map and every chart on every tab. `?tab=fault` (or
-`explore`, `manner`, `corridor`) links straight to a tab.
+agency) applies to the map and every chart on every tab; the year range also
+sits in the header on every tab. `?tab=factors` (or `explore`, `manner`,
+`corridor`) links straight to a tab; old `?tab=fault` links still work.
+
+**Presentation mode** hides the tabs still under construction (shows Overview,
+Exploratory Analysis, Corridor Analysis; the Overview lists the rest as in
+development). Add `?present` to the URL, or build with `VITE_PRESENTATION=true`
+to make it the default. The tab list is `PRESENTATION_TABS` in
+`app/src/config.ts`.
 
 ## Status / what's real vs. placeholder
 
@@ -87,9 +95,24 @@ python3 data/prep_crash_data.py
 #    Needs data/raw_geo/us_counties.json (download URL in the script's docstring).
 python3 data/prep_boundaries.py
 
-# 3. Corridor analysis -> corridors.json (each interstate crash placed at a mile
-#    position along its route). PRELIMINARY: uses the placeholder highway lines.
+# 3. Corridor analysis -> corridors.json (each interstate, US route and state
+#    route crash placed at a mile position along its route). PRELIMINARY: uses
+#    the placeholder highway lines; US/state routes the placeholder only covers
+#    in scattered pieces are dropped.
 python3 data/prep_corridors.py
+
+# 4. Data coverage for the Overview -> coverage.json (vehicle and person records
+#    per year). --input takes the processed TITAN export (vw*.txt) or the 10/5
+#    CSV extract (Unit.csv, Person.csv). Until run, coverage.json is a seed with
+#    vehicle coverage only.
+python3 data/prep_coverage.py --input "~/Desktop/FMCSA Related Crashes"
+
+# 5. Contributing factors -> data/fault/output/factor_crashes.csv, then rerun
+#    step 1 so crashes.json gains party / behCmv / behOther and the Contributing
+#    Factors tab follows the filters. Until then the tab shows a statewide
+#    preview (factors_preview.json, from docs/fault-method/fault_stats2.json).
+python3 data/fault/contributing_factors.py --input "~/Desktop/FMCSA/TITAN Crash Database (Processed)"
+python3 data/prep_crash_data.py
 
 # Highway placeholder (only if rebuilding it; needs data/raw_geo/ne_10m_roads.geojson
 # and data/raw_geo/us_states.geojson, see prep_highways.py for sources)
@@ -146,7 +169,9 @@ means the `base` value stopped matching the repo name.
 - [ ] County choropleth (needs TN county polygons)
 - [ ] Mode 2: Risk Assessment (needs spec)
 - [ ] Mode 3: Predictive Modeling (needs a trained model)
-- [ ] Plausible-fault framework (Collision / Unit / Person / Violation tables)
+- [x] Plausible-fault framework, reframed as Contributing Factors (10/15 meeting)
+- [x] Corridor analysis for US and state routes
+- [x] Presentation mode (hide in-progress tabs)
 
 ## Crash points on the map
 

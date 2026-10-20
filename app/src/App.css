@@ -89,7 +89,7 @@
 
 /* Below this width the title, pills and actions wrap onto separate rows, and
    the dashboard grid has already switched to its single scrolling column. */
-@media (max-width: 1200px) {
+@media (max-width: 1240px) {
   .app-header {
     flex-wrap: wrap;
   }
@@ -148,5 +148,19 @@
   .app-page {
     padding-left: 16px;
     padding-right: 16px;
+  }
+}
+
+/* Laptop widths: drop the title's subtitle and tighten the tab pills so the
+   header (title, tabs, years, filters, theme) stays on one row. */
+@media (max-width: 1600px) and (min-width: 1241px) {
+  .app-header__title h1 span {
+    display: none;
+  }
+  .app-header {
+    gap: 12px;
+  }
+  .app-header .mode-tab {
+    padding: 5px 10px;
   }
 }

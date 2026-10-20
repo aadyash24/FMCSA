@@ -1,5 +1,7 @@
 .dash-grid {
-  flex: 1;
+  /* Fixed to the window height below; flex: 1 would let tall panel content
+     (e.g. a long table) stretch the rows past the window instead of scrolling. */
+  flex: none;
   /* As a flex child it would otherwise size to its content's width on narrow screens. */
   min-width: 0;
   width: 100%;

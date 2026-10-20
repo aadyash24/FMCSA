@@ -13,7 +13,8 @@ import {
   LabelList,
 } from "recharts";
 import { countBy, fmt, totals, yearLabel } from "../lib/crashes";
-import type { CorridorData, CorridorRoute } from "../lib/corridors";
+import type { CorridorClass, CorridorData, CorridorRoute } from "../lib/corridors";
+import { CORRIDOR_CLASSES, matchCorridor } from "../lib/corridors";
 import type { ModeProps } from "../lib/modeProps";
 import { chartTheme } from "../lib/chartTheme";
 import { SEVERITY_ORDER, categoricalPalette, severityColors } from "../lib/severity";
@@ -40,11 +41,19 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
   const { axis, grid, tip, text } = chartTheme(theme);
   const SEV = severityColors(theme);
   const PALETTE = categoricalPalette(theme);
-  const [routeId, setRouteId] = useState<string | null>(null);
+  const [routeId, setRouteIdState] = useState<string | null>(null);
+  const [routeClass, setRouteClass] = useState<CorridorClass>("Interstate");
+  // Any way of opening a route (chip, table, map, search) also switches the class tabs to it.
+  const setRouteId = (id: string | null) => {
+    const hit = id ? corridors?.routes.find((r) => r.id === id) : null;
+    if (id && !hit) return; // a placeholder fragment too short to profile
+    if (hit) setRouteClass(hit.class);
+    setRouteIdState(id);
+  };
   const [binMi, setBinMi] = useState(2);
   const [query, setQuery] = useState("");
 
-  // Filtered crashes per interstate, for the route table and the picker.
+  // Filtered crashes per route, for the route table and the picker.
   const byRoute = useMemo(() => {
     if (!corridors) return [];
     const fatalIdx = data.keys.severity.indexOf("Fatal");
@@ -58,10 +67,11 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
     return acc;
   }, [corridors, rows, data]);
 
+  const inClass = useMemo(() => byRoute.filter((r) => r.route.class === routeClass), [byRoute, routeClass]);
   const current = byRoute.find((r) => r.route.id === routeId) ?? null;
   const currentRows = current?.rows;
   const route = current?.route ?? null;
-  const sum = useMemo(() => totals(data, currentRows ?? byRoute.flatMap((r) => r.rows)), [data, currentRows, byRoute]);
+  const sum = useMemo(() => totals(data, currentRows ?? inClass.flatMap((r) => r.rows)), [data, currentRows, inClass]);
 
   const profile = useMemo(() => {
     if (!route || !currentRows || !corridors) return [];
@@ -89,17 +99,18 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
   const when = yearLabel(filters.yearRange);
   const pick = (value: string) => {
     setQuery(value);
-    const v = value.trim().toUpperCase().replace(/^I-?/, "I-");
-    const hit = corridors.routes.find((r) => r.id.toUpperCase() === v);
+    const hit = matchCorridor(corridors.routes, value);
     if (hit) setRouteId(hit.id);
   };
+  const classLabel = CORRIDOR_CLASSES.find((c) => c.id === routeClass)!.label;
+  const classNoun = classLabel.toLowerCase();
 
   const countyAt = (mi: number) => route?.counties.find((c) => mi >= c.fromMi && mi <= c.toMi + 0.25)?.county ?? "—";
   const metroAt = (mi: number) => route?.metros.find((m) => mi >= m.fromMi && mi <= m.toMi)?.name ?? null;
   const snapBin = (mi: number) => Math.floor(mi / binMi) * binMi;
   const hotspots = [...profile].filter((b) => b.total > 0).sort((a, b) => b.total - a.total).slice(0, 8);
   const ends = route?.direction === "west to east" ? ["west end", "east end"] : ["south end", "north end"];
-  const perMile = [...byRoute]
+  const perMile = [...inClass]
     .map((r) => ({ id: r.route.id, perMile: +(r.rows.length / r.route.lengthMi).toFixed(2) }))
     .sort((a, b) => b.perMile - a.perMile);
 
@@ -112,34 +123,53 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
         <Indicator label="People injured" value={fmt(sum.injured)} />
       </div>
       <Callout>
-        Preliminary: mileposts come from placeholder interstate lines until the TDOT Road Geometrics file is loaded.
+        Preliminary: mileposts come from placeholder route lines until the TDOT Road Geometrics file is loaded.
       </Callout>
     </>
   ) : (
     <>
-      <Indicator size="lg" label="Crashes placed on interstates" value={fmt(sum.crashes)} sub={when} />
-      <Indicator label="Interstates" value={String(corridors.routes.length)} sub="pick one to open its profile" />
+      <Indicator size="lg" label={`Crashes placed on ${classNoun}`} value={fmt(sum.crashes)} sub={when} />
+      <Indicator label={classLabel} value={String(inClass.length)} sub="pick one to open its profile" />
       <div className="kpi-pair">
         <Indicator label="Fatalities" value={fmt(sum.fatalities)} color={SEV.Fatal} />
         <Indicator label="People injured" value={fmt(sum.injured)} />
       </div>
       <Callout>
-        Only crashes coded as on an interstate and within {corridors.snapMiles} mi of the line are counted. Filters
-        still apply.
+        {routeClass === "Interstate"
+          ? `Only crashes coded as on an interstate and within ${corridors.snapMiles} mi of the line are counted.`
+          : `Crashes coded as on a US or state route within ${corridors.snapMiles} mi of the line are counted; the two codes are pooled because every TN US route also has a state route number.`}{" "}
+        Filters still apply.
       </Callout>
     </>
   );
 
   const picker = (
-    <Panel title="Pick an interstate" className="grow-0" note="Or click an interstate on the map.">
+    <Panel title="Pick a route" className="grow-0" note="Or click a route on the map.">
+      <div className="corridor-classes" role="tablist" aria-label="Route class">
+        {CORRIDOR_CLASSES.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            role="tab"
+            aria-selected={c.id === routeClass}
+            className={`chip${c.id === routeClass ? " chip--on" : ""}`}
+            onClick={() => {
+              setRouteClass(c.id);
+              if (route && route.class !== c.id) setRouteIdState(null);
+            }}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
       <input
         type="search"
         className="corridor-search"
         list="corridor-routes"
-        placeholder="Type a route, e.g. I-40"
+        placeholder="Type a route, e.g. I-40, US-70, SR-840"
         value={query}
         onChange={(e) => pick(e.target.value)}
-        aria-label="Search interstates"
+        aria-label="Search routes"
       />
       <datalist id="corridor-routes">
         {corridors.routes.map((r) => (
@@ -147,12 +177,12 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
         ))}
       </datalist>
       <div className="corridor-chips">
-        {byRoute.map(({ route: r, rows: rr }) => (
+        {inClass.map(({ route: r, rows: rr }) => (
           <button
             key={r.id}
             type="button"
             className={`chip${r.id === routeId ? " chip--on" : ""}`}
-            onClick={() => setRouteId(r.id === routeId ? null : r.id)}
+            onClick={() => (r.id === routeId ? setRouteIdState(null) : setRouteId(r.id))}
           >
             {r.id} <span className="corridor-chips__n">{fmt(rr.length)}</span>
           </button>
@@ -164,11 +194,14 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
   const about = (
     <>
       <p>
-        Each interstate crash is placed at a mile position along its route, so crashes can be read from one end of the
-        route to the other, e.g. I-40 from Memphis to Bristol. Shaded bands on the profile are metro areas.
+        Each crash on an interstate, US route or state route is placed at a mile position along its route, so crashes
+        can be read from one end of the route to the other, e.g. I-40 from Memphis to Bristol. Shaded bands on the
+        profile are metro areas.
       </p>
       <p>
-        Raw counts rise with traffic, so city sections stand out on volume alone. Crash rates need traffic counts
+        US and state routes the placeholder only covers in scattered pieces are left out until the TDOT file arrives,
+        since their mileposts would be meaningless. Raw counts rise with traffic, so city sections stand out on volume
+        alone. Crash rates need traffic counts
         (AADT), which the geometrics file doesn't include. Mileposts are approximate until the TDOT Road Geometrics
         file replaces the placeholder lines.
       </p>
@@ -188,20 +221,27 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
         kpis={kpis}
         map={map}
         about={about}
-        mapCaption={<>{when} · click an interstate to open it</>}
+        mapCaption={<>{when} · click a route to open it</>}
         side={
           <>
             {picker}
-            <RouteTable byRoute={byRoute} onPick={setRouteId} when={when} />
+            <RouteTable byRoute={inClass} onPick={setRouteId} when={when} title={`Crashes by ${classNoun.replace(/s$/, "")}`} />
           </>
         }
         bottom={
-          <Panel title="Crashes per mile by interstate" note={`${when} · unnormalized for traffic`}>
+          <Panel title={`Crashes per mile by ${classNoun.replace(/s$/, "")}`} note={`${when} · unnormalized for traffic`}>
             <div className="chart-fill">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={perMile} margin={{ top: 18, right: 8, left: -8, bottom: 0 }}>
+                <BarChart data={perMile} margin={{ top: 18, right: 8, left: -8, bottom: perMile.length > 12 ? 18 : 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
-                  <XAxis dataKey="id" stroke={axis} fontSize={11} interval={0} />
+                  <XAxis
+                    dataKey="id"
+                    stroke={axis}
+                    fontSize={perMile.length > 12 ? 10 : 11}
+                    interval={0}
+                    angle={perMile.length > 12 ? -45 : 0}
+                    textAnchor={perMile.length > 12 ? "end" : "middle"}
+                  />
                   <YAxis stroke={axis} fontSize={11} />
                   <Tooltip contentStyle={tip} formatter={(v) => [Number(v).toFixed(1), "Crashes per mile"]} />
                   <Bar dataKey="perMile" fill={PALETTE[0]} radius={[3, 3, 0, 0]} onClick={(d) => setRouteId(String((d as { id?: string }).id))}>
@@ -225,7 +265,7 @@ export default function CorridorAnalysis({ data, rows, corridors, filters, theme
         <>
           {route.id} · {when} · {fmt(sum.crashes)} crashes ·{" "}
           <button type="button" className="link-btn" onClick={() => setRouteId(null)}>
-            back to all interstates
+            back to all {classNoun}
           </button>
         </>
       }
@@ -362,14 +402,16 @@ function RouteTable({
   byRoute,
   onPick,
   when,
+  title,
 }: {
   byRoute: { route: CorridorRoute; rows: number[]; fatal: number }[];
   onPick: (id: string) => void;
   when: string;
+  title: string;
 }) {
   const sorted = [...byRoute].sort((a, b) => b.rows.length / b.route.lengthMi - a.rows.length / a.route.lengthMi);
   return (
-    <Panel title="Crashes by interstate" note={`${when} · sorted by crashes per mile · click a row to open it`}>
+    <Panel title={title} note={`${when} · sorted by crashes per mile · click a row to open it`}>
       <div className="table-wrap">
         <table>
           <thead>

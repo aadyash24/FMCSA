@@ -305,3 +305,13 @@
   color: var(--accent);
   border-color: var(--accent);
 }
+
+/* Roads are SVG above the crash canvas. The SVG root spans the whole map, so it
+   must not take clicks itself; only the drawn road strokes do. */
+.tn-map .tn-map-roads svg {
+  pointer-events: none;
+}
+.tn-map .tn-map-roads svg path.leaflet-interactive {
+  pointer-events: visibleStroke;
+  cursor: pointer;
+}

@@ -36,6 +36,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  max-height: 96px;
+  overflow-y: auto;
+}
+
+.corridor-classes {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .corridor-chips__n {

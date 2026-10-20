@@ -1,0 +1,99 @@
+{
+  "source": "Seeded: crashes from crashes.json, vehicle coverage from the fault scorer's funnel (10/5 extract). Run data/prep_coverage.py for vehicle and person counts.",
+  "complete": false,
+  "crashes": 45650,
+  "vehicles": null,
+  "people": null,
+  "crashesWithVehicles": 40496,
+  "crashesWithPeople": null,
+  "byYear": [
+    {
+      "year": "2015",
+      "crashes": 3427,
+      "crashesWithVehicles": 55,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2016",
+      "crashes": 3500,
+      "crashesWithVehicles": 1718,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2017",
+      "crashes": 3306,
+      "crashesWithVehicles": 3306,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2018",
+      "crashes": 3486,
+      "crashesWithVehicles": 3486,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2019",
+      "crashes": 4329,
+      "crashesWithVehicles": 4329,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2020",
+      "crashes": 4294,
+      "crashesWithVehicles": 4294,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2021",
+      "crashes": 5531,
+      "crashesWithVehicles": 5531,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2022",
+      "crashes": 6048,
+      "crashesWithVehicles": 6048,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2023",
+      "crashes": 5500,
+      "crashesWithVehicles": 5500,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2024",
+      "crashes": 5023,
+      "crashesWithVehicles": 5023,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    },
+    {
+      "year": "2025",
+      "crashes": 1206,
+      "crashesWithVehicles": 1206,
+      "vehicles": null,
+      "crashesWithPeople": null,
+      "people": null
+    }
+  ]
+}

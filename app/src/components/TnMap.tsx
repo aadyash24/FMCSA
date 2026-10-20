@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, LayersControl, Pane, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, LayersControl, Pane, Polyline, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import type { Layer, LeafletMouseEvent, PathOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -8,6 +8,7 @@ import type { CrashData } from "../lib/crashes";
 import { fmt } from "../lib/crashes";
 import type { ResolvedTheme } from "../lib/theme";
 import { severityColor, severityRank } from "../lib/severity";
+import { corridorIdFor } from "../lib/corridors";
 import CrashLayer from "./CrashLayer";
 import "./TnMap.css";
 
@@ -76,6 +77,56 @@ function FocusView({ focusKey, bounds }: { focusKey: string; bounds: L.LatLngBou
     last.current = focusKey;
     map.flyToBounds(bounds, { padding: [24, 24], duration: 0.6, maxZoom: 10 });
   }, [map, focusKey, bounds]);
+  return null;
+}
+
+/**
+ * Layer stacking, bottom to top: counties (390) < crash canvas (overlayPane, 400)
+ * < roads (420). Every Leaflet canvas is a full-size element that swallows clicks
+ * meant for anything beneath it, which is how the corridor map used to get stuck
+ * in pan mode: the crash canvas appeared over the road canvas once a route was
+ * picked, so a second route could no longer be clicked. Roads are therefore SVG
+ * in their own pane (only the drawn strokes take clicks, see TnMap.css), and a
+ * county is picked from a plain map click by point-in-polygon instead of by its
+ * own canvas hit test.
+ */
+const ROAD_RENDERER = L.svg({ pane: "roads" });
+// GeoJSON hands its options to every child path, renderer included, but
+// react-leaflet's prop types leave `renderer` out, hence the spread.
+const ROAD_LAYER_OPTS = { pane: "roads", renderer: ROAD_RENDERER, bubblingMouseEvents: false } as object;
+
+type Ring = [number, number][];
+function inRing(ring: Ring, x: number, y: number): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+function inPolygon(rings: Ring[], x: number, y: number): boolean {
+  return inRing(rings[0], x, y) && !rings.slice(1).some((h) => inRing(h, x, y));
+}
+function countyAt(fc: CountyFeatureCollection, lat: number, lon: number): string | null {
+  for (const f of fc.features) {
+    const g = f.geometry;
+    const polys: Ring[][] =
+      g.type === "Polygon" ? [g.coordinates as Ring[]] : g.type === "MultiPolygon" ? (g.coordinates as Ring[][]) : [];
+    if (polys.some((rings) => inPolygon(rings, lon, lat))) return f.properties.county;
+  }
+  return null;
+}
+
+/** A click on empty map (not a crash, not a road) focuses the county under it. */
+function CountyClick({ counties, county, onChange }: { counties: CountyFeatureCollection | null; county: string | null; onChange: (c: string | null) => void }) {
+  useMapEvents({
+    click: (e) => {
+      if (!counties) return;
+      const name = countyAt(counties, e.latlng.lat, e.latlng.lng);
+      if (name) onChange(name === county ? null : name);
+    },
+  });
   return null;
 }
 
@@ -174,10 +225,13 @@ export default function TnMap({
 
   const onEachHighway = useCallback(
     (feature: GeoJSON.Feature<GeoJSON.Geometry, HighwayProps>, layer: Layer) => {
-      const { route_label, route_type } = feature.properties;
-      layer.bindTooltip(`${route_label} (${route_type})`, { sticky: true });
-      if (onRouteClick && route_type === "Interstate") {
-        layer.on("click", () => onRouteClick(route_label));
+      const id = corridorIdFor(feature.properties);
+      layer.bindTooltip(onRouteClick ? `${id} · click to open` : id, { sticky: true });
+      if (onRouteClick) {
+        layer.on("click", (e: LeafletMouseEvent) => {
+          L.DomEvent.stop(e.originalEvent);
+          onRouteClick(id);
+        });
       }
     },
     [onRouteClick]
@@ -188,22 +242,10 @@ export default function TnMap({
       const selected = feature?.properties.county === county;
       const line = theme === "dark" ? "#9aa4b4" : "#667085";
       return selected
-        ? { color: ROAD_BLUE[theme], weight: 2.5, opacity: 1, fillColor: ROAD_BLUE[theme], fillOpacity: 0.08 }
-        : { color: line, weight: 0.6, opacity: 0.55, fillOpacity: 0 };
+        ? { color: ROAD_BLUE[theme], weight: 2.5, opacity: 1, fillColor: ROAD_BLUE[theme], fillOpacity: 0.08, interactive: false }
+        : { color: line, weight: 0.6, opacity: 0.55, fillOpacity: 0, interactive: false };
     },
     [county, theme]
-  );
-
-  const onEachCounty = useCallback(
-    (feature: GeoJSON.Feature<GeoJSON.Geometry, { county: string }>, layer: Layer) => {
-      const name = feature.properties.county;
-      layer.bindTooltip(`${name} County · click to focus`, { sticky: true });
-      layer.on("click", (e: LeafletMouseEvent) => {
-        e.originalEvent.stopPropagation();
-        onCountyChange(name === county ? null : name);
-      });
-    },
-    [county, onCountyChange]
   );
 
   const maskStyle: PathOptions = {
@@ -259,22 +301,25 @@ export default function TnMap({
         <Pane name="mask" style={{ zIndex: 350 }}>
           {mask && <GeoJSON key={`mask-${theme}`} data={mask} style={maskStyle} />}
         </Pane>
+        <Pane name="counties" style={{ zIndex: 390 }} />
+        <Pane name="roads" className="tn-map-roads" style={{ zIndex: 420 }} />
 
         <LayersControl position="topright">
           {counties && (
             <LayersControl.Overlay checked name="Counties">
-              <GeoJSON
-                key={`c-${theme}-${county ?? "all"}`}
-                data={counties}
-                style={countyStyle}
-                onEachFeature={onEachCounty}
-              />
+              <GeoJSON key={`c-${theme}-${county ?? "all"}`} data={counties} style={countyStyle} pane="counties" interactive={false} />
             </LayersControl.Overlay>
           )}
 
           {stateRoutes && (
             <LayersControl.Overlay checked name="US / State Routes">
-              <GeoJSON key={`sr-${theme}-${dimRoads}`} data={stateRoutes} style={styleFor} onEachFeature={onEachHighway} />
+              <GeoJSON
+                key={`sr-${theme}-${dimRoads}-${!!onRouteClick}`}
+                data={stateRoutes}
+                style={styleFor}
+                onEachFeature={onEachHighway}
+                {...ROAD_LAYER_OPTS}
+              />
             </LayersControl.Overlay>
           )}
 
@@ -285,23 +330,31 @@ export default function TnMap({
                 data={interstates}
                 style={styleFor}
                 onEachFeature={onEachHighway}
+                {...ROAD_LAYER_OPTS}
               />
             </LayersControl.Overlay>
           )}
         </LayersControl>
 
         <FocusView focusKey={focus.key} bounds={focus.bounds} />
+        <CountyClick counties={counties} county={county} onChange={onCountyChange} />
 
         {highlight && (
           <>
             <Polyline
               key={`halo-${highlight.id}-${theme}`}
               positions={highlight.path}
+              pane="roads"
+              renderer={ROAD_RENDERER}
+              interactive={false}
               pathOptions={{ color: theme === "dark" ? "#0b0d12" : "#ffffff", weight: 10, opacity: 0.9 }}
             />
             <Polyline
               key={`hl-${highlight.id}-${theme}`}
               positions={highlight.path}
+              pane="roads"
+              renderer={ROAD_RENDERER}
+              interactive={false}
               pathOptions={{ color: HIGHLIGHT[theme], weight: 6, opacity: 1 }}
             />
           </>
@@ -356,7 +409,7 @@ export default function TnMap({
               {!data
                 ? "Loading crashes…"
                 : networkOnly && !highlight
-                  ? "Pick an interstate to see its crashes."
+                  ? "Pick a route to see its crashes."
                   : counts.thinned
                     ? `Showing ${fmt(counts.rendered)} of ${fmt(counts.inView)} crashes in view. Zoom in to see them all. ${fmt(counts.matching)} match the filters.`
                     : `Showing all ${fmt(counts.rendered)} crashes in view. ${fmt(counts.matching)} match the filters.`}

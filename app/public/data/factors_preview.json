@@ -1,0 +1,48 @@
+{
+  "source": "Full processed TITAN export, all years (docs/fault-method/fault_stats2.json). Not filtered.",
+  "caveat": "Top 15 coded actions per driver type only; citations and alcohol/drug presence not included.",
+  "behaviors": [
+    "Speeding",
+    "Distraction / inattention",
+    "Impairment (alcohol / drugs)",
+    "Following too closely",
+    "Lane or position error",
+    "Failure to yield / obey controls",
+    "Reckless / careless driving",
+    "Improper turn or backing",
+    "Other coded action",
+    "Cited, other violation"
+  ],
+  "actionsCmv": [
+    949,
+    388,
+    0,
+    2877,
+    8013,
+    2416,
+    863,
+    1206,
+    366,
+    0
+  ],
+  "actionsOther": [
+    1518,
+    525,
+    0,
+    4072,
+    7061,
+    4569,
+    2487,
+    450,
+    0,
+    0
+  ],
+  "crashesByParty": {
+    "CMV driver only": 15201,
+    "Other driver only": 18084,
+    "Both drivers": 2234,
+    "No factor coded": 10038,
+    "No driver record": 93
+  },
+  "bothNote": "In this preview 'Both drivers' means two or more drivers had a factor coded, whichever vehicles they drove."
+}
