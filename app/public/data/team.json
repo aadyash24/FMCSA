@@ -1,11 +1,47 @@
 {
-  "_readme": "Edit this list to set the team shown on the Overview page. Put photos in app/public/team/ and reference them as \"team/<file>.jpg\". Leave photo empty to show initials. Replace the faculty placeholders with real names, titles and photos.",
+  "_readme": "Edit this list to set the team shown on the Overview page. Put photos in app/public/team/ and reference them as \"team/<file>.jpg\". Leave photo empty to show initials. Optional fields: title, email.",
   "members": [
-    { "name": "Faculty Member 1", "role": "Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
-    { "name": "Faculty Member 2", "role": "Co-Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
-    { "name": "Faculty Member 3", "role": "Co-Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
-    { "name": "Faculty Member 4", "role": "Co-Principal Investigator", "affiliation": "Center for Transportation Research, UTK", "photo": "" },
-    { "name": "Aadya Sharma", "role": "Research Assistant, dashboard and agentic analysis", "affiliation": "University of Tennessee, Knoxville", "photo": "" },
-    { "name": "Research Assistant", "role": "Research Assistant (to be announced)", "affiliation": "", "photo": "" }
+    {
+      "name": "Mohammad Shaon",
+      "role": "Principal Investigator",
+      "title": "Research Assistant Professor",
+      "affiliation": "Center for Transportation Research, UTK",
+      "photo": "team/shaon.jpg"
+    },
+    {
+      "name": "Asad Khattak",
+      "role": "Co-Principal Investigator",
+      "title": "Beaman Professor and Transportation Program Coordinator",
+      "affiliation": "Department of Civil and Environmental Engineering, UTK",
+      "email": "akhattak@utk.edu",
+      "photo": "team/khattak.jpg"
+    },
+    {
+      "name": "Husain Aziz",
+      "role": "Co-Principal Investigator",
+      "title": "Associate Professor",
+      "affiliation": "Department of Civil Engineering, Kansas State University",
+      "email": "aziz.husain.nexus@gmail.com",
+      "photo": "team/aziz.jpg"
+    },
+    {
+      "name": "Christian A. Sabillon-Orellana",
+      "role": "Co-Principal Investigator",
+      "title": "Research Assistant Professor",
+      "affiliation": "Center for Transportation Research, UTK",
+      "photo": "team/sabillon.jpg"
+    },
+    {
+      "name": "Aadya Sharma",
+      "role": "Research Assistant, dashboard and agentic analysis",
+      "affiliation": "University of Tennessee, Knoxville",
+      "photo": ""
+    },
+    {
+      "name": "Research Assistant",
+      "role": "Research Assistant (to be announced)",
+      "affiliation": "",
+      "photo": ""
+    }
   ]
 }

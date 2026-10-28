@@ -11,7 +11,10 @@ import "./Overview.css";
 interface TeamMember {
   name: string;
   role: string;
+  /** Academic title, shown under the role. */
+  title?: string;
   affiliation?: string;
+  email?: string;
   /** Path under app/public, e.g. "team/jane.jpg". Empty shows initials. */
   photo?: string;
 }
@@ -181,7 +184,13 @@ export default function Overview({
               <Avatar member={m} />
               <div className="team-card__name">{m.name}</div>
               <div className="team-card__role">{m.role}</div>
+              {m.title && <div className="team-card__title">{m.title}</div>}
               {m.affiliation && <div className="team-card__aff">{m.affiliation}</div>}
+              {m.email && (
+                <a className="team-card__email" href={`mailto:${m.email}`}>
+                  {m.email}
+                </a>
+              )}
             </div>
           ))}
         </div>
