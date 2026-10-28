@@ -18,7 +18,7 @@ export function useJson<T>(path: string): JsonState<T> {
     let cancelled = false;
     setState({ data: null, loading: true, error: null });
 
-    fetch(`${import.meta.env.BASE_URL}data/${path}`)
+    fetch(`${import.meta.env.BASE_URL}data/${path}`, { cache: "no-cache" })
       .then((res) => {
         if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
         return res.json();
