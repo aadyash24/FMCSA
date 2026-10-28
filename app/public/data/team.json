@@ -6,7 +6,8 @@
       "role": "Principal Investigator",
       "title": "Research Assistant Professor",
       "affiliation": "Center for Transportation Research, UTK",
-      "photo": "team/shaon.jpg"
+      "photo": "team/shaon.jpg",
+      "email": "mshaon06@utk.edu"
     },
     {
       "name": "Asad Khattak",
@@ -29,14 +30,16 @@
       "role": "Co-Principal Investigator",
       "title": "Research Assistant Professor",
       "affiliation": "Center for Transportation Research, UTK",
-      "photo": "team/sabillon.jpg"
+      "photo": "team/sabillon.jpg",
+      "email": "csabillo@utk.edu"
     },
     {
       "name": "Aadya Sharma",
       "role": "Tech Lead",
       "affiliation": "University of Tennessee, Knoxville",
       "photo": "team/aadya.jpg",
-      "title": "Dashboard and agentic analysis"
+      "title": "Dashboard and agentic analysis",
+      "email": "asharm41@vols.utk.edu"
     },
     {
       "name": "Research Assistant",
