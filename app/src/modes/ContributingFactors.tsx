@@ -23,6 +23,23 @@ import "./ContributingFactors.css";
  * run, the tab shows a static statewide preview (factors_preview.json).
  */
 
+/**
+ * Behavior labels, in the bit order contributing_factors.py writes into behCmv / behOther.
+ * Used when factors_meta.json is slow, stale or fails to load, so the charts are never blank.
+ */
+const DEFAULT_BEHAVIORS = [
+  "Speeding",
+  "Distraction / inattention",
+  "Impairment (alcohol / drugs)",
+  "Following too closely",
+  "Lane or position error",
+  "Failure to yield / obey controls",
+  "Reckless / careless driving",
+  "Improper turn or backing",
+  "Other coded action",
+  "Cited, other violation",
+];
+
 const PARTIES = ["CMV driver only", "Other driver only", "Both drivers", "No factor coded", "No driver record"] as const;
 
 export interface FactorsPreview {
@@ -140,7 +157,8 @@ export default function ContributingFactors({ data, rows, filters, theme, render
       const partyCol = data.cols.party!;
       const behCmv = data.cols.behCmv!;
       const behOther = data.cols.behOther!;
-      const behaviors = meta?.behaviors.map((b) => b.label) ?? [];
+      const metaLabels = meta?.behaviors?.map((b) => b.label) ?? [];
+      const behaviors = metaLabels.length ? metaLabels : DEFAULT_BEHAVIORS;
       const B = behaviors.length;
       const parties: Record<string, number> = Object.fromEntries(PARTIES.map((p) => [p, 0]));
       const cAll = new Array(B).fill(0) as number[];
