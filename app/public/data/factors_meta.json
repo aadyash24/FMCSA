@@ -1,5 +1,5 @@
 {
-  "source": "FMCSA Related Crashes",
+  "source": "TITAN Crash Database (Processed)",
   "personDetail": true,
   "parties": [
     "CMV driver only",
@@ -126,18 +126,23 @@
     }
   ],
   "crashesByParty": {
-    "CMV driver only": 143,
-    "Other driver only": 333,
-    "Both drivers": 0,
-    "No factor coded": 2554,
-    "No driver record": 42620
+    "CMV driver only": 15296,
+    "Other driver only": 18821,
+    "Both drivers": 1490,
+    "No factor coded": 9950,
+    "No driver record": 93
   },
   "driverRecordsByYear": {
-    "2020": 2,
-    "2021": 2,
-    "2022": 16,
-    "2023": 537,
-    "2024": 1985,
-    "2025": 488
+    "2015": 3425,
+    "2016": 3486,
+    "2017": 3304,
+    "2018": 3480,
+    "2019": 4314,
+    "2020": 4280,
+    "2021": 5521,
+    "2022": 6035,
+    "2023": 5490,
+    "2024": 5020,
+    "2025": 1202
   }
 }

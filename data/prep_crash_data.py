@@ -8,7 +8,8 @@ Network) crash report data dictionary published by NHTSA:
 https://www.nhtsa.gov/sites/nhtsa.gov/files/documents/tn_titan_schema_data_dictionary_sub6_2012.pdf
 
 Optional inputs, used when present (the columns fall back to "Not recorded"):
-  UNIT_CSV          Unit.csv from the supervisor's 10/5 extract, for road surface
+  UNIT_DIRS         unit table for road surface: the processed TITAN export (vwUnit.txt),
+                    else the supervisor's 10/5 extract (Unit.csv); first folder that has one
   AGENCY_LOOKUP     vwLookup_Agency.txt from the TITAN export, for agency names
   FAULT_CSV         data/fault/output/fault_crashes.csv (run data/fault/score_fault.py first)
   FACTOR_CSV        data/fault/output/factor_crashes.csv (run data/fault/contributing_factors.py
@@ -23,9 +24,14 @@ import json
 import os
 from datetime import date
 
+from titan import find, table
+
 RAW_CSV = os.path.join(os.path.dirname(__file__), "..", "raw_crash_data.csv")
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "app", "public", "data")
-UNIT_CSV = os.path.expanduser("~/Desktop/FMCSA Related Crashes/Unit.csv")
+UNIT_DIRS = [
+    os.path.expanduser("~/Desktop/FMCSA/TITAN Crash Database (Processed)"),
+    os.path.expanduser("~/Desktop/FMCSA Related Crashes"),
+]
 AGENCY_LOOKUP = os.path.expanduser("~/Desktop/Clean Up/FMCSA/TITAN Crash Database (Processed)/vwLookup_Agency.txt")
 FAULT_CSV = os.path.join(os.path.dirname(__file__), "fault", "output", "fault_crashes.csv")
 FACTOR_CSV = os.path.join(os.path.dirname(__file__), "fault", "output", "factor_crashes.csv")
@@ -115,15 +121,15 @@ def yes_no(v):
 
 
 def load_surface():
-    """Road surface per crash from the first unit that has one (Unit.csv is unit-level)."""
+    """Road surface per crash from the first unit that has one (the unit table is unit-level)."""
     out = {}
-    if not os.path.exists(UNIT_CSV):
+    folder = next((d for d in UNIT_DIRS if find(d, "unit")), None)
+    if folder is None:
         return out
-    with open(UNIT_CSV, newline="", encoding="utf-8", errors="replace") as f:
-        for r in csv.DictReader(f):
-            v = (r.get("SurfCondCde") or "").strip().removesuffix(".0")
-            if v.isdigit() and r["MstrRecNbrTxt"].strip() not in out:
-                out[r["MstrRecNbrTxt"].strip()] = SURFACE.get(v.zfill(2), "Other")
+    for r in table(folder, "unit"):
+        v = r.get("SurfCondCde", "").removesuffix(".0")
+        if v.isdigit() and r["MstrRecNbrTxt"] not in out:
+            out[r["MstrRecNbrTxt"]] = SURFACE.get(v.zfill(2), "Other")
     return out
 
 
