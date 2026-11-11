@@ -224,6 +224,11 @@ function CoverageSection({ coverage, theme }: { coverage: Coverage; theme: Resol
     People: share(r.crashesWithPeople, r.crashes),
   }));
   const hasPeople = rows.some((r) => r.People !== null);
+  const years = coverage.byYear.map((x) => x.year);
+  const allCovered =
+    coverage.complete &&
+    coverage.byYear.length > 0 &&
+    coverage.byYear.every((x) => x.crashesWithVehicles === x.crashes && x.crashesWithPeople === x.crashes);
   const fullFrom = coverage.byYear.find((_, i, a) => a.slice(i).every((x) => x.crashesWithVehicles === x.crashes))?.year;
   const tile = (value: number | null, label: string) => (
     <div>
@@ -235,8 +240,17 @@ function CoverageSection({ coverage, theme }: { coverage: Coverage; theme: Resol
     <section className="overview-coverage">
       <h3 className="overview-h">What the data covers</h3>
       <p className="overview-coverage__lead">
-        Not every crash report comes with its vehicle and person records, so some analyses only reach certain years.
-        {fullFrom && <> Vehicle records cover every crash from {fullFrom} on.</>}
+        {allCovered ? (
+          <>
+            Every crash report from {years[0]} to {years[years.length - 1]} comes with its vehicle and person records, so
+            every analysis covers the full span.
+          </>
+        ) : (
+          <>
+            Not every crash report comes with its vehicle and person records, so some analyses only reach certain years.
+            {fullFrom && <> Vehicle records cover every crash from {fullFrom} on.</>}
+          </>
+        )}
       </p>
       <div className="overview-stats overview-stats--compact">
         {tile(coverage.crashes, "CMV crashes")}
