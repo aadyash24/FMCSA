@@ -20,11 +20,12 @@ import json
 import os
 from collections import Counter, defaultdict
 
-from titan import crash_years, table
+from titan import code, crash_years, table
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CRASHES = os.path.join(HERE, "..", "raw_crash_data.csv")
 DEFAULT_INPUT = os.path.expanduser("~/Desktop/FMCSA Related Crashes")
+NON_MOTOR_VEHICLE = "05"  # UnitTypeCde 05: a unit record that is not a vehicle (TITAN data dictionary)
 OUT = os.path.join(HERE, "..", "app", "public", "data", "coverage.json")
 
 
@@ -38,9 +39,10 @@ def main():
     years = crash_years(os.path.expanduser(args.crashes))
     keys = set(years)
 
-    vehicles = Counter()  # crash -> unit records
+    vehicles = Counter()  # crash -> motor vehicle unit records
     for r in table(folder, "unit", keys):
-        vehicles[r["MstrRecNbrTxt"]] += 1
+        if code(r.get("UnitTypeCde")) != NON_MOTOR_VEHICLE:
+            vehicles[r["MstrRecNbrTxt"]] += 1
     people = Counter()  # crash -> person records
     for r in table(folder, "person", keys):
         people[r["MstrRecNbrTxt"]] += 1

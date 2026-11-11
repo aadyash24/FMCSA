@@ -2,7 +2,7 @@
   "source": "TITAN Crash Database (Processed) (unit and person tables)",
   "complete": true,
   "crashes": 45650,
-  "vehicles": 104127,
+  "vehicles": 90814,
   "people": 179463,
   "crashesWithVehicles": 45650,
   "crashesWithPeople": 45650,
@@ -11,7 +11,7 @@
       "year": "2015",
       "crashes": 3427,
       "crashesWithVehicles": 3427,
-      "vehicles": 7878,
+      "vehicles": 6742,
       "crashesWithPeople": 3427,
       "people": 13354
     },
@@ -19,7 +19,7 @@
       "year": "2016",
       "crashes": 3500,
       "crashesWithVehicles": 3500,
-      "vehicles": 8019,
+      "vehicles": 6874,
       "crashesWithPeople": 3500,
       "people": 13555
     },
@@ -27,7 +27,7 @@
       "year": "2017",
       "crashes": 3306,
       "crashesWithVehicles": 3306,
-      "vehicles": 7585,
+      "vehicles": 6502,
       "crashesWithPeople": 3306,
       "people": 12836
     },
@@ -35,7 +35,7 @@
       "year": "2018",
       "crashes": 3486,
       "crashesWithVehicles": 3486,
-      "vehicles": 7912,
+      "vehicles": 6835,
       "crashesWithPeople": 3486,
       "people": 13337
     },
@@ -43,7 +43,7 @@
       "year": "2019",
       "crashes": 4329,
       "crashesWithVehicles": 4329,
-      "vehicles": 9828,
+      "vehicles": 8550,
       "crashesWithPeople": 4329,
       "people": 16904
     },
@@ -51,7 +51,7 @@
       "year": "2020",
       "crashes": 4294,
       "crashesWithVehicles": 4294,
-      "vehicles": 9728,
+      "vehicles": 8472,
       "crashesWithPeople": 4294,
       "people": 16343
     },
@@ -59,7 +59,7 @@
       "year": "2021",
       "crashes": 5531,
       "crashesWithVehicles": 5531,
-      "vehicles": 12808,
+      "vehicles": 11257,
       "crashesWithPeople": 5531,
       "people": 21663
     },
@@ -67,7 +67,7 @@
       "year": "2022",
       "crashes": 6048,
       "crashesWithVehicles": 6048,
-      "vehicles": 13769,
+      "vehicles": 12158,
       "crashesWithPeople": 6048,
       "people": 23612
     },
@@ -75,7 +75,7 @@
       "year": "2023",
       "crashes": 5500,
       "crashesWithVehicles": 5500,
-      "vehicles": 12521,
+      "vehicles": 11043,
       "crashesWithPeople": 5500,
       "people": 21964
     },
@@ -83,7 +83,7 @@
       "year": "2024",
       "crashes": 5023,
       "crashesWithVehicles": 5023,
-      "vehicles": 11359,
+      "vehicles": 9999,
       "crashesWithPeople": 5023,
       "people": 20826
     },
@@ -91,7 +91,7 @@
       "year": "2025",
       "crashes": 1206,
       "crashesWithVehicles": 1206,
-      "vehicles": 2720,
+      "vehicles": 2382,
       "crashesWithPeople": 1206,
       "people": 5069
     }
