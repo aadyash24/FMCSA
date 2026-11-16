@@ -251,3 +251,87 @@
 .team-card__email:hover {
   text-decoration: underline;
 }
+
+.overview-heatmap__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.overview-seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.overview-seg button {
+  border: 0;
+  background: transparent;
+  padding: 5px 12px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.overview-seg button.is-on {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.overview-heatmap__scroll {
+  overflow-x: auto;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.overview-heatmap__table {
+  border-collapse: separate;
+  border-spacing: 3px;
+  width: 100%;
+  min-width: 640px;
+  font-size: 12px;
+}
+.overview-heatmap__table thead th {
+  font-weight: 700;
+  padding: 2px 4px 6px;
+  text-align: center;
+}
+.overview-heatmap__table tbody th {
+  font-weight: 500;
+  text-align: right;
+  padding-right: 10px;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+.overview-heatmap__table td {
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 7px 4px;
+  border-radius: 4px;
+}
+
+.overview-heatmap__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.overview-heatmap__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.overview-heatmap__legend i {
+  width: 18px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+}

@@ -61,7 +61,7 @@ def main():
         "actionsOther": grouped(s["top_actions_other_driver"]),
         "crashesByParty": {
             "CMV driver only": single["commercial driver"],
-            "Other driver only": single["other driver"],
+            "Non-CMV driver only": single["non-CMV driver"],
             "Both drivers": outcome["contested (2+ flagged)"],
             "No factor coded": outcome["unattributable (no signal)"],
             "No driver record": outcome["no driver record"],

@@ -14,7 +14,7 @@ Method (after docs/fault-method/fault_analysis2.py)
      store two bitmasks: groups coded for the CMV driver(s) and for the other
      driver(s).
   4. Contributing party per crash:
-        CMV driver only / Other driver only / Both drivers
+        CMV driver only / Non-CMV driver only / Both drivers
         No factor coded      drivers on file but nothing coded
         No driver record     no driver person records for the crash
 
@@ -67,7 +67,7 @@ BEHAVIORS = [
 ]
 NEUTRAL_ACTIONS = {"", "00", "23", "97", "98", "99"}  # none, swerved/avoided, driverless, other, unknown
 
-PARTIES = ["CMV driver only", "Other driver only", "Both drivers", "No factor coded", "No driver record"]
+PARTIES = ["CMV driver only", "Non-CMV driver only", "Both drivers", "No factor coded", "No driver record"]
 
 
 def bit_for():
@@ -145,7 +145,7 @@ def main():
         elif cmv_flag:
             party = "CMV driver only"
         elif other_flag:
-            party = "Other driver only"
+            party = "Non-CMV driver only"
         else:
             party = "No factor coded"
         party_count[party] += 1

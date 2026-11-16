@@ -113,11 +113,11 @@ for k in keys:
         multi_outcome[res] += 1
         if len(flagged)==1:
             d = flagged[0][0]
-            who_multi["commercial driver" if d[1] in cu else "other driver"] += 1
+            who_multi["commercial driver" if d[1] in cu else "non-CMV driver"] += 1
         manner_outcome[MANNER.get(manner_by_key.get(k,""), manner_by_key.get(k,""))][res] += 1
     if len(flagged)==1:
         d = flagged[0][0]
-        who["commercial driver" if d[1] in cu else "other driver"] += 1
+        who["commercial driver" if d[1] in cu else "non-CMV driver"] += 1
 
 multi_total = sum(multi_outcome.values())
 res = {
@@ -144,7 +144,7 @@ for k2,v in who_multi.most_common():
     print(f"  {v:>7,}  {v/t*100:5.1f}%  {k2}")
 print("\nTop action codes, COMMERCIAL drivers:")
 for k2,v in act_cmv.most_common(10): print(f"  {v:>7,}  {k2}")
-print("\nTop action codes, OTHER drivers:")
+print("\nTop action codes, NON-CMV drivers:")
 for k2,v in act_other.most_common(10): print(f"  {v:>7,}  {k2}")
 print("\nSignal mix per flagged driver:")
 for k2,v in agree.most_common(): print(f"  {v:>7,}  {k2}")

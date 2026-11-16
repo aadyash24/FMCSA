@@ -14,9 +14,9 @@ import "./ContributingFactors.css";
  * fault; they list the factors coded for each driver. So this tab reads in
  * three steps, as agreed in the 10/15 meeting:
  *   1. which behaviors are coded in CMV crashes (speeding, distraction, ...)
- *   2. whose factors were coded: the CMV driver, the other driver, both, or none
+ *   2. whose factors were coded: the CMV driver, the non-CMV driver, both, or none
  *   3. whether the behavior ranking changes between all drivers, CMV drivers
- *      and other drivers; the change points at training or enforcement targets
+ *      and non-CMV drivers; the change points at training or enforcement targets
  *
  * Live data comes from data/fault/contributing_factors.py via crashes.json
  * (party, behCmv, behOther) and follows the shared filters. Until that has been
@@ -40,7 +40,7 @@ const DEFAULT_BEHAVIORS = [
   "Cited, other violation",
 ];
 
-const PARTIES = ["CMV driver only", "Other driver only", "Both drivers", "No factor coded", "No driver record"] as const;
+const PARTIES = ["CMV driver only", "Non-CMV driver only", "Both drivers", "No factor coded", "No driver record"] as const;
 
 export interface FactorsPreview {
   source: string;
@@ -73,7 +73,7 @@ function partyColors(theme: ResolvedTheme): Record<string, string> {
   return theme === "dark"
     ? {
         "CMV driver only": "#f5a55f",
-        "Other driver only": "#6b95ff",
+        "Non-CMV driver only": "#6b95ff",
         "Both drivers": "#b48bf0",
         "No factor coded": "#6f7784",
         "No driver record": "#454b55",
@@ -86,7 +86,7 @@ function partyColors(theme: ResolvedTheme): Record<string, string> {
       }
     : {
         "CMV driver only": "#d97706",
-        "Other driver only": "#1d4ed8",
+        "Non-CMV driver only": "#1d4ed8",
         "Both drivers": "#7c5cd6",
         "No factor coded": "#98a2b3",
         "No driver record": "#d0d5dd",
@@ -129,7 +129,7 @@ interface Factors {
   live: boolean;
   behaviors: string[];
   parties: Record<string, number>;
-  /** Share (%) of each behavior for all drivers, CMV drivers, other drivers. */
+  /** Share (%) of each behavior for all drivers, CMV drivers, non-CMV drivers. */
   all: number[];
   cmv: number[];
   other: number[];
@@ -171,7 +171,7 @@ export default function ContributingFactors({ data, rows, filters, theme, render
         const p = keys[partyCol[i]];
         parties[p] = (parties[p] ?? 0) + 1;
         const cmvIn = p === "CMV driver only" || p === "Both drivers";
-        const otherIn = p === "Other driver only" || p === "Both drivers";
+        const otherIn = p === "Non-CMV driver only" || p === "Both drivers";
         if (cmvIn) nCmv++;
         if (otherIn) nOther++;
         if (cmvIn || otherIn) nAll++;
@@ -273,7 +273,7 @@ export default function ContributingFactors({ data, rows, filters, theme, render
   const allCrashes = PARTIES.reduce((a, p) => a + (P[p] ?? 0), 0);
   const total = allCrashes - (P["No driver record"] ?? 0);
   const cmvContrib = (P["CMV driver only"] ?? 0) + (P["Both drivers"] ?? 0);
-  const single = (P["CMV driver only"] ?? 0) + (P["Other driver only"] ?? 0);
+  const single = (P["CMV driver only"] ?? 0) + (P["Non-CMV driver only"] ?? 0);
   const unknown = P["No factor coded"] ?? 0;
   const scope = live ? when : "all years · not filtered";
 
@@ -287,7 +287,7 @@ export default function ContributingFactors({ data, rows, filters, theme, render
     behavior: factors.behaviors[b],
     "All drivers": factors.all[b],
     "CMV drivers": factors.cmv[b],
-    "Other drivers": factors.other[b],
+    "Non-CMV drivers": factors.other[b],
   }));
   const rankOf = (vals: number[]) => {
     const sorted = vals.map((v, b) => [v, b] as const).sort((a, b) => b[0] - a[0]);
@@ -311,7 +311,7 @@ export default function ContributingFactors({ data, rows, filters, theme, render
       />
       <div className="kpi-pair">
         <Indicator label="CMV driver had a factor" value={pct(cmvContrib, total)} color={COLORS["CMV driver only"]} sub={fmt(cmvContrib)} />
-        <Indicator label="Only the other driver" value={pct(P["Other driver only"] ?? 0, total)} color={COLORS["Other driver only"]} sub={fmt(P["Other driver only"] ?? 0)} />
+        <Indicator label="Only the non-CMV driver" value={pct(P["Non-CMV driver only"] ?? 0, total)} color={COLORS["Non-CMV driver only"]} sub={fmt(P["Non-CMV driver only"] ?? 0)} />
       </div>
       <div className="kpi-pair">
         <Indicator label="Both drivers" value={pct(P["Both drivers"] ?? 0, total)} color={COLORS["Both drivers"]} sub={fmt(P["Both drivers"] ?? 0)} />
@@ -319,9 +319,9 @@ export default function ContributingFactors({ data, rows, filters, theme, render
       </div>
       <Callout>
         When only one driver had a factor coded, it was the <strong>other (non-CMV) driver</strong> in{" "}
-        <strong>{pct(P["Other driver only"] ?? 0, single)}</strong> of crashes.
+        <strong>{pct(P["Non-CMV driver only"] ?? 0, single)}</strong> of crashes.
         <small>
-          This tests TDOT's assumption that most CMV vs. non-CMV crashes are caused by the other driver.{" "}
+          This tests TDOT's assumption that most CMV vs. non-CMV crashes are caused by the non-CMV driver.{" "}
           {live ? "Officer-coded factors; no fault assigned." : "Preview from the full TITAN export; it won't follow the filters until the factors data is generated."}
         </small>
       </Callout>
@@ -411,13 +411,13 @@ export default function ContributingFactors({ data, rows, filters, theme, render
                         <Legend wrapperStyle={{ fontSize: 11 }} />
                         <Bar dataKey="All drivers" fill={COLORS["All drivers"]} radius={[3, 3, 0, 0]} />
                         <Bar dataKey="CMV drivers" fill={COLORS["CMV driver only"]} radius={[3, 3, 0, 0]} />
-                        <Bar dataKey="Other drivers" fill={COLORS["Other driver only"]} radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="Non-CMV drivers" fill={COLORS["Non-CMV driver only"]} radius={[3, 3, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="factor-ranks table-wrap">
                     <p className="panel__note">
-                      Top for CMV drivers: <strong>{topCmv ?? "–"}</strong>. Top for other drivers:{" "}
+                      Top for CMV drivers: <strong>{topCmv ?? "–"}</strong>. Top for non-CMV drivers:{" "}
                       <strong>{topOther ?? "–"}</strong>. A behavior that ranks higher for one group than overall is a
                       candidate for training or enforcement aimed at that group.
                     </p>
@@ -499,8 +499,8 @@ function About({ live, meta }: { live: boolean; meta: FactorsMeta | null }) {
       <h4>How to read it</h4>
       <ul>
         <li>Step 1: which behaviors are coded most (speeding, distraction, impairment, ...).</li>
-        <li>Step 2: whose factors were coded: only the CMV driver, only the other driver, both, or none.</li>
-        <li>Step 3: whether the ranking changes between all drivers, CMV drivers and other drivers.</li>
+        <li>Step 2: whose factors were coded: only the CMV driver, only the non-CMV driver, both, or none.</li>
+        <li>Step 3: whether the ranking changes between all drivers, CMV drivers and non-CMV drivers.</li>
       </ul>
       <h4>Data</h4>
       <ul>

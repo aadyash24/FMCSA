@@ -3,7 +3,7 @@
   "personDetail": true,
   "parties": [
     "CMV driver only",
-    "Other driver only",
+    "Non-CMV driver only",
     "Both drivers",
     "No factor coded",
     "No driver record"
@@ -127,7 +127,7 @@
   ],
   "crashesByParty": {
     "CMV driver only": 15296,
-    "Other driver only": 18821,
+    "Non-CMV driver only": 18821,
     "Both drivers": 1490,
     "No factor coded": 9950,
     "No driver record": 93

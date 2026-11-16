@@ -89,7 +89,7 @@ Among multi-unit crashes with exactly one flagged party:
 
 The two parties also fail differently. Commercial drivers lead on
 `Failure to Keep Proper Lane` (5,761) and `Improper Lane Change` (1,554), which is
-consistent with vehicle length and blind spots. Other drivers lead on
+consistent with vehicle length and blind spots. Non-CMV drivers lead on
 `Failure to Yield` (3,626 against 1,927) and `Following Improperly` (4,072 against
 2,877), consistent with misjudging a truck's stopping distance and turning radius.
 

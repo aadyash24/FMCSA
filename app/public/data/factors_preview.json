@@ -39,7 +39,7 @@
   ],
   "crashesByParty": {
     "CMV driver only": 15201,
-    "Other driver only": 18084,
+    "Non-CMV driver only": 18084,
     "Both drivers": 2234,
     "No factor coded": 10038,
     "No driver record": 93

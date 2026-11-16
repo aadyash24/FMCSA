@@ -25,11 +25,13 @@ Options: --who all|cmv|other (default all), --from-csv to replot from the
 counts file without rereading the TITAN tables.
 
 Writes data/fault/output/factor_heatmap_<who>.csv and
-docs/presentation/factor_heatmap_<who>_{crashes,people}.png.
+docs/presentation/factor_heatmap_<who>_{crashes,people}.png, and adds the counts
+to app/public/data/factor_heatmap.json, which the Overview page draws.
 """
 
 import argparse
 import csv
+import json
 import os
 import sys
 from collections import defaultdict
@@ -45,6 +47,7 @@ DEFAULT_CRASHES = os.path.join(HERE, "..", "..", "raw_crash_data.csv")
 DEFAULT_INPUT = os.path.expanduser("~/Desktop/FMCSA Related Crashes")
 OUT_DIR = os.path.join(HERE, "output")
 FIG_DIR = os.path.join(HERE, "..", "..", "docs", "presentation")
+APP_JSON = os.path.join(HERE, "..", "..", "app", "public", "data", "factor_heatmap.json")
 
 # Rows shown, top to bottom, with the short labels used on the slide.
 ROWS = [
@@ -201,6 +204,21 @@ def plot(counts, years, metric, who, path, source):
     plt.close(fig)
 
 
+def write_json(counts, years, who, source):
+    """Merge this run's counts into the app's factor_heatmap.json under its `who` key."""
+    try:
+        with open(APP_JSON) as f:
+            data = json.load(f)
+    except (FileNotFoundError, ValueError):
+        data = {}
+    data.update({"source": source, "years": years, "partialYear": PARTIAL_YEAR, "rows": [short for _, short in ROWS]})
+    data.setdefault("counts", {})[who] = {
+        metric: [[counts.get((metric, label, y), 0) for y in years] for label, _ in ROWS] for metric in ("crashes", "people")
+    }
+    with open(APP_JSON, "w") as f:
+        json.dump(data, f, indent=1)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--crashes", default=DEFAULT_CRASHES)
@@ -217,6 +235,9 @@ def main():
         counts, years = count(os.path.expanduser(args.input), args.crashes, args.who)
         write_csv(csv_path, counts, years)
         print(f"Wrote {csv_path}")
+    source = os.path.basename(os.path.expanduser(args.input).rstrip("/"))
+    write_json(counts, years, args.who, source)
+    print(f"Wrote {os.path.normpath(APP_JSON)}")
     for metric in ("crashes", "people"):
         path = os.path.join(FIG_DIR, f"factor_heatmap_{args.who}_{metric}.png")
         plot(counts, years, metric, args.who, path, os.path.basename(os.path.expanduser(args.input).rstrip("/")))

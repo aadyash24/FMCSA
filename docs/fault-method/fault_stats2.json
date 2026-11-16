@@ -16,11 +16,11 @@
   "multi_unit_total": 40349,
   "single_flag_party_all": {
     "commercial driver": 15201,
-    "other driver": 18084
+    "non-CMV driver": 18084
   },
   "single_flag_party_multi_unit": {
     "commercial driver": 12043,
-    "other driver": 18018
+    "non-CMV driver": 18018
   },
   "driver_signal_mix": {
     "action only": 21592,

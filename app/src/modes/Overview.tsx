@@ -57,7 +57,7 @@ const SECTIONS: { mode: DashboardMode; title: string; body: string }[] = [
   {
     mode: "factors",
     title: "Contributing Factors",
-    body: "Which driver behaviors police coded (speeding, distraction, impairment), whether for the CMV driver or the other driver, and how the ranking shifts between them.",
+    body: "Which driver behaviors police coded (speeding, distraction, impairment), whether for the CMV driver or the non-CMV driver, and how the ranking shifts between them.",
   },
 ];
 
@@ -103,6 +103,7 @@ export default function Overview({
 }) {
   const { data: team } = useJson<{ members: TeamMember[] }>("team.json");
   const { data: coverage } = useJson<Coverage>("coverage.json");
+  const { data: heatmap } = useJson<FactorHeatmap>("factor_heatmap.json");
 
   const stats = useMemo(() => {
     if (!data) return null;
@@ -198,6 +199,8 @@ export default function Overview({
 
       {coverage && <CoverageSection coverage={coverage} theme={theme} />}
 
+      {heatmap && <HeatmapSection heatmap={heatmap} theme={theme} />}
+
       <section className="overview-data">
         <h3 className="overview-h">About the data</h3>
         <ul>
@@ -210,6 +213,123 @@ export default function Overview({
         </ul>
       </section>
     </div>
+  );
+}
+
+/** Output of data/fault/factor_heatmap.py: coded behaviors per year, same source as coverage.json. */
+interface FactorHeatmap {
+  source: string;
+  years: string[];
+  partialYear?: string;
+  rows: string[];
+  /** counts[who][metric][row][year] */
+  counts: Partial<Record<"all" | "cmv", Record<"crashes" | "people", number[][]>>>;
+}
+
+/** Three round upper edges for the shaded bins (e.g. 10 / 20 / 40), spread over the nonzero cells. */
+function heatBins(values: number[]): number[] {
+  const nz = values.filter((v) => v > 0).sort((a, b) => a - b);
+  if (!nz.length) return [10, 25, 50];
+  const steps: number[] = [];
+  for (let e = 1; e < 7; e++) for (const m of [1, 2.5, 5]) steps.push(m * 10 ** e);
+  const edges: number[] = [];
+  for (const q of [0.25, 0.5, 0.75]) {
+    const v = nz[Math.min(nz.length - 1, Math.floor(q * nz.length))];
+    const snapped = steps.reduce((best, s) => (Math.abs(s - v) < Math.abs(best - v) ? s : best), steps[0]);
+    edges.push(Math.max(snapped, edges.length ? edges[edges.length - 1] * 2 : 1));
+  }
+  return edges;
+}
+
+const HEAT = {
+  light: ["#eef0f4", "#dce4f2", "#a9c3df", "#6c8fc7", "#36579a"],
+  dark: ["#1b202b", "#22314f", "#2f4f86", "#4a72c2", "#7ea3f2"],
+};
+
+function HeatmapSection({ heatmap, theme }: { heatmap: FactorHeatmap; theme: ResolvedTheme }) {
+  const [metric, setMetric] = useState<"crashes" | "people">("crashes");
+  const [who, setWho] = useState<"all" | "cmv">("all");
+  const grid = heatmap.counts[who]?.[metric] ?? heatmap.counts.all?.[metric];
+  if (!grid) return null;
+  const edges = heatBins(grid.flat());
+  const shade = (v: number) => (v === 0 ? 0 : 1 + edges.filter((e) => v > e).length);
+  const colors = HEAT[theme === "dark" ? "dark" : "light"];
+  const labels = ["0", `1–${fmt(edges[0])}`, `${fmt(edges[0] + 1)}–${fmt(edges[1])}`, `${fmt(edges[1] + 1)}–${fmt(edges[2])}`, `${fmt(edges[2] + 1)}+`];
+  const seg = <T extends string>(value: T, set: (v: T) => void, options: [T, string][]) => (
+    <div className="overview-seg" role="group">
+      {options.map(([v, label]) => (
+        <button key={v} type="button" className={v === value ? "is-on" : ""} onClick={() => set(v)}>
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+  return (
+    <section className="overview-heatmap">
+      <h3 className="overview-h">Coded driver behaviors by year</h3>
+      <p className="overview-coverage__lead">
+        Officer-coded behaviors from the same person records as the coverage chart above, so years without person
+        records show 0. Counted {metric === "crashes" ? "once per crash (collision ID)" : "once per driver (person ID)"}
+        {who === "cmv" ? ", CMV drivers only" : ", any driver"}.
+      </p>
+      <div className="overview-heatmap__controls">
+        {seg(metric, setMetric, [
+          ["crashes", "By crash"],
+          ["people", "By person ID"],
+        ])}
+        {seg(who, setWho, [
+          ["all", "All drivers"],
+          ["cmv", "CMV drivers"],
+        ])}
+      </div>
+      <div className="overview-heatmap__scroll">
+        <table className="overview-heatmap__table">
+          <thead>
+            <tr>
+              <th />
+              {heatmap.years.map((y) => (
+                <th key={y} scope="col">
+                  {y}
+                  {y === heatmap.partialYear ? "*" : ""}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {heatmap.rows.map((row, i) => (
+              <tr key={row}>
+                <th scope="row">{row}</th>
+                {grid[i].map((v, j) => {
+                  const s = shade(v);
+                  return (
+                    <td
+                      key={heatmap.years[j]}
+                      style={{ background: colors[s], color: theme === "dark" ? (s >= 4 ? "#0b1220" : undefined) : s >= 3 ? "#fff" : undefined }}
+                      title={`${row}, ${heatmap.years[j]}: ${fmt(v)}`}
+                    >
+                      {fmt(v)}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="overview-heatmap__legend">
+        {labels.map((l, i) => (
+          <span key={l}>
+            <i style={{ background: colors[i] }} />
+            {l}
+          </span>
+        ))}
+      </div>
+      {heatmap.partialYear && (
+        <p className="overview-coverage__note">
+          *{heatmap.partialYear}: January to March only. Source: {heatmap.source}.
+        </p>
+      )}
+    </section>
   );
 }
 

@@ -195,7 +195,7 @@ def county_name(code):
 
 
 def load_factors():
-    """{crash id: (party, CMV-driver behavior bits, other-driver behavior bits)}, or None when not generated."""
+    """{crash id: (party, CMV-driver behavior bits, non-CMV driver behavior bits)}, or None when not generated."""
     if not os.path.exists(FACTOR_CSV):
         return None
     with open(FACTOR_CSV, newline="") as f:
