@@ -167,7 +167,9 @@ def load_fault():
     return out
 
 
-# TN county codes: alphabetical order 01-95, as used by TDOT/TITAN
+# TN county codes 01-95, as used by TDOT/TITAN. The order follows the state/Census
+# sequence, which sorts the "Mc" counties BEFORE "Mac" (McMinn, McNairy, Macon, ...).
+# Plain alphabetical order puts them after, which mislabels all seven M counties.
 TN_COUNTIES = [
     "Anderson", "Bedford", "Benton", "Bledsoe", "Blount", "Bradley", "Campbell",
     "Cannon", "Carroll", "Carter", "Cheatham", "Chester", "Claiborne", "Clay",
@@ -176,15 +178,15 @@ TN_COUNTIES = [
     "Grainger", "Greene", "Grundy", "Hamblen", "Hamilton", "Hancock", "Hardeman",
     "Hardin", "Hawkins", "Haywood", "Henderson", "Henry", "Hickman", "Houston",
     "Humphreys", "Jackson", "Jefferson", "Johnson", "Knox", "Lake", "Lauderdale",
-    "Lawrence", "Lewis", "Lincoln", "Loudon", "Macon", "Madison", "Marion",
-    "Marshall", "Maury", "McMinn", "McNairy", "Meigs", "Monroe", "Montgomery",
+    "Lawrence", "Lewis", "Lincoln", "Loudon", "McMinn", "McNairy", "Macon",
+    "Madison", "Marion", "Marshall", "Maury", "Meigs", "Monroe", "Montgomery",
     "Moore", "Morgan", "Obion", "Overton", "Perry", "Pickett", "Polk", "Putnam",
     "Rhea", "Roane", "Robertson", "Rutherford", "Scott", "Sequatchie", "Sevier",
     "Shelby", "Smith", "Stewart", "Sullivan", "Sumner", "Tipton", "Trousdale",
     "Unicoi", "Union", "Van Buren", "Warren", "Washington", "Wayne", "Weakley",
     "White", "Williamson", "Wilson",
 ]
-# NOTE: TN has 95 counties, coded 01-95 in alphabetical order by TDOT/TITAN.
+# NOTE: TN has 95 counties, coded 01-95 (Census order, see above).
 # If a code comes back blank/unmapped, `county_name()` falls back to the raw
 # code instead of guessing.
 COUNTY_BY_CODE = {f"{i+1:02d}": name for i, name in enumerate(TN_COUNTIES)}
